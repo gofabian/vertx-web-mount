@@ -39,13 +39,21 @@ It is not...
 
 **Step 1:** Configure the Jitpack repository:
 
-tbd.
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
 
 **Step 2:** Add the library to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>gofabian</groupId>
+    <groupId>com.github.gofabian</groupId>
     <artifactId>vertx-web-mount</artifactId>
     <version>0.1.0</version>
 </dependency>
@@ -126,7 +134,6 @@ public String blocking() throws InterruptedException {
     return result;
 }
 ```
-
 
 
 ### Request body
