@@ -27,8 +27,8 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/gofabian/vertx-web-mount.git</connection>
-        <developerConnection>scm:git:ssh://github.com:gofabian/vertx-web-mount.git</developerConnection>
+        <connection>scm:git:git@github.com:gofabian/vertx-web-mount.git</connection>
+        <developerConnection>scm:git:git@github.com:gofabian/vertx-web-mount.git</developerConnection>
         <url>http://github.com/gofabian/vertx-web-mount/tree/master</url>
     </scm>
 
