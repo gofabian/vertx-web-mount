@@ -1,6 +1,9 @@
 
 # Vert.x Web Mounter
 
+[![](https://jitpack.io/v/gofabian/vertx-web-mount.svg)](https://jitpack.io/#gofabian/vertx-web-mount)
+[![](https://jitci.com/gh/gofabian/vertx-web-mount/svg)](https://jitci.com/gh/gofabian/vertx-web-mount)
+
 This library enables you to define [Vert.x] web routes with [JAX-RS annotations][JAX-RS] like this:
 
 ```java
