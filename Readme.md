@@ -1,8 +1,7 @@
 
 # Vert.x Web Mounter
 
-[![](https://jitpack.io/v/gofabian/vertx-web-mount.svg)](https://jitpack.io/#gofabian/vertx-web-mount)
-[![](https://jitci.com/gh/gofabian/vertx-web-mount/svg)](https://jitci.com/gh/gofabian/vertx-web-mount)
+![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/gofabian/vertx-web-mount)
 
 This library enables you to define [Vert.x] web routes with [JAX-RS annotations][JAX-RS] like this:
 
@@ -40,25 +39,13 @@ It is not...
 
 ## Getting Started with Maven
 
-**Step 1:** Configure the Jitpack repository:
-
-```xml
-<repositories>
-    <repository>
-        <id>jitpack.io</id>
-        <url>https://jitpack.io</url>
-    </repository>
-</repositories>
-```
-
-
-**Step 2:** Add the library to your `pom.xml`:
+Add vertx-web-mount to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>com.github.gofabian</groupId>
+    <groupId>de.gofabian</groupId>
     <artifactId>vertx-web-mount</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
