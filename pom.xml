@@ -4,7 +4,7 @@
 
     <groupId>de.gofabian</groupId>
     <artifactId>vertx-web-mount</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0-SNAPSHOT</version>
 
     <name>vertx-web-mount</name>
     <description>Mount your Vert.x web routes with JAX-RS annotations</description>
@@ -28,7 +28,7 @@
         <connection>scm:git:git@github.com:gofabian/vertx-web-mount.git</connection>
         <developerConnection>scm:git:git@github.com:gofabian/vertx-web-mount.git</developerConnection>
         <url>http://github.com/gofabian/vertx-web-mount/tree/master</url>
-      <tag>0.2.0</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <properties>
