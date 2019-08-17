@@ -12,14 +12,14 @@ public class RouteDefinition {
     private Object context;
 
     private List<HttpMethod> methods = new ArrayList<>();
-    private String path;
+    private String path = "/";
     private List<String> consumes = new ArrayList<>();
     private List<String> produces = new ArrayList<>();
     private List<ParamDefinition> params = new ArrayList<>();
     private Type responseType;
 
     public RouteDefinition withSubRouteDefinition(RouteDefinition subRouteDefinition) {
-        RouteDefinition routeDefinition = new RouteDefinition().withContext(subRouteDefinition.context);
+        RouteDefinition routeDefinition = new RouteDefinition().setContext(subRouteDefinition.context);
 
         routeDefinition.methods = combineList(methods, subRouteDefinition.methods);
         routeDefinition.path = combinePath(path, subRouteDefinition.path);
@@ -53,7 +53,7 @@ public class RouteDefinition {
         return context;
     }
 
-    public RouteDefinition withContext(Object context) {
+    public RouteDefinition setContext(Object context) {
         this.context = context;
         return this;
     }

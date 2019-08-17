@@ -1,10 +1,8 @@
 package gofabian.vertx.web.mount;
 
 import gofabian.vertx.web.mount.definition.RouteDefinition;
-import gofabian.vertx.web.mount.definition.RouteDefinitionFactory;
-import gofabian.vertx.web.mount.jaxrs.JaxRsRouteDefinitionFactory;
-import gofabian.vertx.web.mount.jaxrs.MethodRouteDefinitionInvoker;
 import gofabian.vertx.web.mount.param.*;
+import gofabian.vertx.web.mount.parse.*;
 import gofabian.vertx.web.mount.request.*;
 import gofabian.vertx.web.mount.response.*;
 import io.vertx.ext.web.Router;
@@ -15,15 +13,21 @@ import java.util.Objects;
 
 public class VertxWebMounter {
 
-    private RouteDefinitionFactory routeDefinitionFactory = new JaxRsRouteDefinitionFactory();
-    private RouteDefinitionInvoker routeDefinitionInvoker = new MethodRouteDefinitionInvoker();
+    private RouteDefinitionFactory routeDefinitionFactory = new RouteDefinitionFactoryImpl();
+    private RouteDefinitionInvoker routeDefinitionInvoker = new RouteDefinitionInvokerImpl();
     private List<Object> apiDefinitions = new ArrayList<>();
     private List<ParamProviderFactory> paramProviderFactories = new ArrayList<>();
     private List<RequestReader> requestReaders = new ArrayList<>();
     private List<ResponseWriter> responseWriters = new ArrayList<>();
+    private List<RouteParser> parsers = new ArrayList<>();
 
-    public VertxWebMounter setRouteDefinitionFactory(JaxRsRouteDefinitionFactory routeDefinitionFactory) {
+    public VertxWebMounter setRouteDefinitionFactory(RouteDefinitionFactory routeDefinitionFactory) {
         this.routeDefinitionFactory = routeDefinitionFactory;
+        return this;
+    }
+
+    public VertxWebMounter addParser(RouteParser parser) {
+        parsers.add(parser);
         return this;
     }
 
@@ -79,8 +83,14 @@ public class VertxWebMounter {
 
         RouteDefinitionMounter routeDefinitionMounter = new RouteDefinitionMounter(routeDefinitionInvoker, paramProviderFactories, responseWriters);
 
+        List<RouteParser> parsers = new ArrayList<>();
+        parsers.add(new ReturnTypeParser());
+        parsers.add(new JaxrsParser());
+        parsers.addAll(this.parsers);
+        RouteParser parser = new CompositeRouteParser(parsers);
+
         for (Object apiDefinition : apiDefinitions) {
-            List<RouteDefinition> routeDefinitions = routeDefinitionFactory.createRouteDefinitions(apiDefinition);
+            List<RouteDefinition> routeDefinitions = routeDefinitionFactory.create(apiDefinition, parser, null);
 
             if (routeDefinitions.isEmpty()) {
                 throw new IllegalArgumentException("Given api instance has no route definitions: " + apiDefinition);
