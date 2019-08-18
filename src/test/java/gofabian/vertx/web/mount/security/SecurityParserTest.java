@@ -1,7 +1,7 @@
 package gofabian.vertx.web.mount.security;
 
 import gofabian.vertx.web.mount.definition.RouteDefinition;
-import gofabian.vertx.web.mount.parser.ParseOptions;
+import gofabian.vertx.web.mount.MountOptions;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 public class SecurityParserTest {
 
     private final SecurityParser parser = new SecurityParser();
-    private final ParseOptions options = new ParseOptions();
+    private final MountOptions options = new MountOptions();
 
     @Test
     public void visitClass() {

@@ -26,6 +26,7 @@ public class VertxWebMounter {
     private List<RouteParser> parsers = new ArrayList<>();
     private List<RouteConfigurator> configurators = new ArrayList<>();
     private List<Object> apiDefinitions = new ArrayList<>();
+    private MountOptions options = new MountOptions();
 
     public VertxWebMounter setRouteDefinitionFactory(RouteDefinitionFactory routeDefinitionFactory) {
         this.routeDefinitionFactory = routeDefinitionFactory;
@@ -60,6 +61,10 @@ public class VertxWebMounter {
     public VertxWebMounter addRouteConfigurator(RouteConfigurator configurator) {
         configurators.add(configurator);
         return this;
+    }
+
+    public void setOptions(MountOptions options) {
+        this.options = options;
     }
 
     public VertxWebMounter addApiDefinition(Object apiDefinition) {
@@ -101,7 +106,8 @@ public class VertxWebMounter {
         ));
         routeConfigurators.addAll(configurators);
 
-        RouteDefinitionMounter routeDefinitionMounter = new RouteDefinitionMounter(routeDefinitionInvoker, paramProviderFactories, responseWriters, routeConfigurators);
+        RouteDefinitionMounter routeDefinitionMounter = new RouteDefinitionMounter(routeDefinitionInvoker,
+                paramProviderFactories, responseWriters, routeConfigurators, options);
 
         List<RouteParser> parsers = new ArrayList<>();
         parsers.add(new ReturnTypeParser());

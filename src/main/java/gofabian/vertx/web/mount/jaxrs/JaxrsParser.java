@@ -4,7 +4,7 @@ import gofabian.vertx.web.mount.definition.ParamCategory;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import gofabian.vertx.web.mount.parser.ParseHelper;
-import gofabian.vertx.web.mount.parser.ParseOptions;
+import gofabian.vertx.web.mount.MountOptions;
 import gofabian.vertx.web.mount.parser.RouteParser;
 import io.vertx.core.http.HttpMethod;
 
@@ -19,14 +19,14 @@ import java.util.List;
 public class JaxrsParser implements RouteParser {
 
     @Override
-    public void visitClass(Class<?> clazz, RouteDefinition routeDefinition, ParseOptions options) {
+    public void visitClass(Class<?> clazz, RouteDefinition routeDefinition, MountOptions options) {
         for (Annotation annotation : clazz.getAnnotations()) {
             visitAnnotation(annotation, routeDefinition);
         }
     }
 
     @Override
-    public void visitMethod(Method method, RouteDefinition routeDefinition, ParseOptions options) {
+    public void visitMethod(Method method, RouteDefinition routeDefinition, MountOptions options) {
         for (Annotation annotation : method.getAnnotations()) {
             visitAnnotation(annotation, routeDefinition);
         }
@@ -87,7 +87,7 @@ public class JaxrsParser implements RouteParser {
     }
 
     @Override
-    public void visitParameter(Parameter parameter, ParamDefinition paramDefinition, ParseOptions options) {
+    public void visitParameter(Parameter parameter, ParamDefinition paramDefinition, MountOptions options) {
         paramDefinition
                 .setCategory(ParamCategory.BODY)
                 .setType(parameter.getParameterizedType());

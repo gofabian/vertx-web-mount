@@ -26,22 +26,25 @@ public class RouteDefinitionMounter {
     private final List<ParamProviderFactory> parameterProviderFactories;
     private final ResponseWriter responseWriter;
     private final List<RouteConfigurator> routeConfigurators;
+    private final MountOptions options;
 
     public RouteDefinitionMounter(RouteDefinitionInvoker routeDefinitionInvoker,
                                   List<ParamProviderFactory> parameterProviderFactories,
                                   List<ResponseWriter> responseWriters,
-                                  List<RouteConfigurator> routeConfigurators) {
+                                  List<RouteConfigurator> routeConfigurators,
+                                  MountOptions options) {
         this.routeDefinitionInvoker = routeDefinitionInvoker;
         this.parameterProviderFactories = parameterProviderFactories;
         this.responseWriter = new CompositeResponseWriter(responseWriters);
         this.routeConfigurators = routeConfigurators;
+        this.options = options;
     }
 
     public Route mountRoute(Router router, Object apiDefinition, RouteDefinition routeDefinition) {
         log.info("Mount route " + routeDefinition);
 
         Route vertxRoute = router.route();
-        routeConfigurators.forEach(configurator -> configurator.configure(routeDefinition, vertxRoute));
+        routeConfigurators.forEach(configurator -> configurator.configure(routeDefinition, vertxRoute, options));
         Handler<RoutingContext> routeHandler = createRouteHandler(apiDefinition, routeDefinition);
         vertxRoute.handler(routeHandler);
         return vertxRoute;

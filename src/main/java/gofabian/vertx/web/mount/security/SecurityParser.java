@@ -1,8 +1,8 @@
 package gofabian.vertx.web.mount.security;
 
+import gofabian.vertx.web.mount.MountOptions;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
-import gofabian.vertx.web.mount.parser.ParseOptions;
 import gofabian.vertx.web.mount.parser.RouteParser;
 
 import java.lang.reflect.AnnotatedElement;
@@ -13,18 +13,21 @@ import java.util.List;
 
 public class SecurityParser implements RouteParser {
     @Override
-    public void visitClass(Class<?> clazz, RouteDefinition routeDefinition, ParseOptions options) {
+    public void visitClass(Class<?> clazz, RouteDefinition routeDefinition, MountOptions options) {
         visitAnnotations(clazz, routeDefinition);
     }
 
     @Override
-    public void visitMethod(Method method, RouteDefinition routeDefinition, ParseOptions options) {
+    public void visitMethod(Method method, RouteDefinition routeDefinition, MountOptions options) {
         visitAnnotations(method, routeDefinition);
     }
 
     private void visitAnnotations(AnnotatedElement annotatedElement, RouteDefinition routeDefinition) {
         if (annotatedElement.isAnnotationPresent(Authenticated.class)) {
-            routeDefinition.setAuthenticationRequired(true);
+            routeDefinition.setAuthenticationRequired(Boolean.TRUE);
+        }
+        if (annotatedElement.isAnnotationPresent(NotAuthenticated.class)) {
+            routeDefinition.setAuthenticationRequired(Boolean.FALSE);
         }
 
         AuthoritiesAllowed authoritiesAllowed = annotatedElement.getAnnotation(AuthoritiesAllowed.class);
@@ -62,6 +65,6 @@ public class SecurityParser implements RouteParser {
     }
 
     @Override
-    public void visitParameter(Parameter parameter, ParamDefinition paramDefinition, ParseOptions options) {
+    public void visitParameter(Parameter parameter, ParamDefinition paramDefinition, MountOptions options) {
     }
 }

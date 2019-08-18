@@ -78,7 +78,8 @@ public class RouteDefinitionMounterTest {
                 new NegotiationConfigurator(),
                 new NoContentConfigurator()
         );
-        routeDefinitionMounter = new RouteDefinitionMounter(apiInvokerMock, paramProviderFactories, responseWriters, routeConfigurators);
+        routeDefinitionMounter = new RouteDefinitionMounter(apiInvokerMock, paramProviderFactories, responseWriters,
+                routeConfigurators, new MountOptions());
     }
 
     @After

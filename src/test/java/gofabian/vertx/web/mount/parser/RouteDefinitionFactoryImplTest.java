@@ -1,5 +1,6 @@
 package gofabian.vertx.web.mount.parser;
 
+import gofabian.vertx.web.mount.MountOptions;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import io.vertx.core.http.HttpMethod;
@@ -53,16 +54,16 @@ public class RouteDefinitionFactoryImplTest {
     }
 
     private final RouteDefinitionFactoryImpl factory = new RouteDefinitionFactoryImpl();
-    private final ParseOptions options = new ParseOptions();
+    private final MountOptions options = new MountOptions();
 
     private final RouteParser parser = new RouteParser() {
         @Override
-        public void visitClass(Class<?> clazz, RouteDefinition routeDefinition, ParseOptions options) {
+        public void visitClass(Class<?> clazz, RouteDefinition routeDefinition, MountOptions options) {
             routeDefinition.setPath("/" + clazz.getSimpleName());
         }
 
         @Override
-        public void visitMethod(Method method, RouteDefinition routeDefinition, ParseOptions options) {
+        public void visitMethod(Method method, RouteDefinition routeDefinition, MountOptions options) {
             routeDefinition.setPath("/" + method.getName());
             routeDefinition.getMethods().add(HttpMethod.POST);
         }
@@ -75,7 +76,7 @@ public class RouteDefinitionFactoryImplTest {
         }
 
         @Override
-        public void visitParameter(Parameter parameter, ParamDefinition paramDefinition, ParseOptions options) {
+        public void visitParameter(Parameter parameter, ParamDefinition paramDefinition, MountOptions options) {
             paramDefinition.setName(parameter.getType().getSimpleName());
         }
     };

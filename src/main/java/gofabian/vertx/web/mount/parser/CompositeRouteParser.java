@@ -1,5 +1,6 @@
 package gofabian.vertx.web.mount.parser;
 
+import gofabian.vertx.web.mount.MountOptions;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 
@@ -16,17 +17,17 @@ public class CompositeRouteParser implements RouteParser {
     }
 
     @Override
-    public void visitClass(Class<?> clazz, RouteDefinition routeDefinition, ParseOptions options) {
+    public void visitClass(Class<?> clazz, RouteDefinition routeDefinition, MountOptions options) {
         parsers.forEach(p -> p.visitClass(clazz, routeDefinition, options));
     }
 
     @Override
-    public void visitMethod(Method method, RouteDefinition routeDefinition, ParseOptions options) {
+    public void visitMethod(Method method, RouteDefinition routeDefinition, MountOptions options) {
         parsers.forEach(p -> p.visitMethod(method, routeDefinition, options));
     }
 
     @Override
-    public void visitParameter(Parameter parameter, ParamDefinition paramDefinition, ParseOptions options) {
+    public void visitParameter(Parameter parameter, ParamDefinition paramDefinition, MountOptions options) {
         parsers.forEach(p -> p.visitParameter(parameter, paramDefinition, options));
     }
 

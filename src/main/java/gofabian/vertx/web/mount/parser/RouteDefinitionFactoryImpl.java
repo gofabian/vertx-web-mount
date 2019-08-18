@@ -1,5 +1,6 @@
 package gofabian.vertx.web.mount.parser;
 
+import gofabian.vertx.web.mount.MountOptions;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 
@@ -13,7 +14,7 @@ import java.util.List;
 
 public class RouteDefinitionFactoryImpl implements RouteDefinitionFactory {
 
-    public List<RouteDefinition> create(Object api, RouteParser parser, ParseOptions options) {
+    public List<RouteDefinition> create(Object api, RouteParser parser, MountOptions options) {
         Class<?> clazz = api.getClass();
 
         RouteDefinition classDefinition = parseClass(api, parser, options);
@@ -62,13 +63,13 @@ public class RouteDefinitionFactoryImpl implements RouteDefinitionFactory {
         return false;
     }
 
-    protected RouteDefinition parseClass(Object api, RouteParser parser, ParseOptions options) {
+    protected RouteDefinition parseClass(Object api, RouteParser parser, MountOptions options) {
         RouteDefinition classDefinition = new RouteDefinition().setContext(api);
         parser.visitClass(api.getClass(), classDefinition, options);
         return classDefinition;
     }
 
-    protected RouteDefinition parseMethod(Method method, RouteParser parser, ParseOptions options) {
+    protected RouteDefinition parseMethod(Method method, RouteParser parser, MountOptions options) {
         RouteDefinition methodDefinition = new RouteDefinition().setContext(method);
         parser.visitMethod(method, methodDefinition, options);
 
@@ -80,7 +81,7 @@ public class RouteDefinitionFactoryImpl implements RouteDefinitionFactory {
         return methodDefinition;
     }
 
-    protected ParamDefinition parseParameter(Parameter parameter, RouteParser parser, ParseOptions options) {
+    protected ParamDefinition parseParameter(Parameter parameter, RouteParser parser, MountOptions options) {
         ParamDefinition paramDefinition = new ParamDefinition();
         parser.visitParameter(parameter, paramDefinition, options);
         return paramDefinition;

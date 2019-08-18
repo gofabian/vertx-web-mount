@@ -1,5 +1,6 @@
 package gofabian.vertx.web.mount.parser;
 
+import gofabian.vertx.web.mount.MountOptions;
 import gofabian.vertx.web.mount.jaxrs.JaxrsParser;
 import gofabian.vertx.web.mount.definition.ParamCategory;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
@@ -39,7 +40,7 @@ public class JaxrsParserTest {
     }
 
     private final JaxrsParser parser = new JaxrsParser();
-    private final ParseOptions options = new ParseOptions();
+    private final MountOptions options = new MountOptions();
 
     @Test
     public void visitClass() {
