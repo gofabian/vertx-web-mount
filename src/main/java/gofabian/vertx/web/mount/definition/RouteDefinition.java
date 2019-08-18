@@ -18,7 +18,7 @@ public class RouteDefinition {
     private List<ParamDefinition> params = new ArrayList<>();
     private Type responseType;
 
-    private boolean isAuthenticationRequired;
+    private Boolean isAuthenticationRequired;
     private List<String> allowedAuthorities = new ArrayList<>();
     private List<String> requiredAuthorities = new ArrayList<>();
 
@@ -98,11 +98,11 @@ public class RouteDefinition {
         return this;
     }
 
-    public boolean isAuthenticationRequired() {
+    public Boolean isAuthenticationRequired() {
         return isAuthenticationRequired;
     }
 
-    public RouteDefinition setAuthenticationRequired(boolean authenticationRequired) {
+    public RouteDefinition setAuthenticationRequired(Boolean authenticationRequired) {
         isAuthenticationRequired = authenticationRequired;
         return this;
     }

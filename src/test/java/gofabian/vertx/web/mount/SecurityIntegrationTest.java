@@ -1,5 +1,6 @@
 package gofabian.vertx.web.mount;
 
+import gofabian.vertx.web.mount.security.Authenticated;
 import gofabian.vertx.web.mount.security.AuthoritiesAllowed;
 import gofabian.vertx.web.mount.security.AuthoritiesRequired;
 import io.vertx.core.AsyncResult;
@@ -25,7 +26,7 @@ import javax.ws.rs.Path;
 import java.util.List;
 
 @RunWith(VertxUnitRunner.class)
-public class AuthorityIntegrationTest {
+public class SecurityIntegrationTest {
 
     private Vertx vertx = Vertx.vertx();
     private Router router = Router.router(vertx);
@@ -38,8 +39,11 @@ public class AuthorityIntegrationTest {
         router.route().handler(LoggerHandler.create());
 
         router.route().handler(routingContext -> {
+            List<String> authentication = routingContext.queryParam("auth");
             List<String> authorities = routingContext.queryParam("authority");
-            routingContext.setUser(new AuthUser(authorities));
+            if (!authorities.isEmpty() || !authentication.isEmpty()) {
+                routingContext.setUser(new AuthUser(authorities));
+            }
             routingContext.next();
         });
 
@@ -96,6 +100,28 @@ public class AuthorityIntegrationTest {
         WebClient.create(vertx)
                 .post(port, "127.0.0.1", "/?authority=right:write")
                 .expect(ResponsePredicate.SC_FORBIDDEN)
+                .send(context.asyncAssertSuccess());
+    }
+
+    @Test
+    public void authenticated(TestContext context) {
+        @Authenticated
+        class Api {
+            @POST
+            @Path("/")
+            public void route() {
+            }
+        }
+        new VertxWebMounter().addApiDefinition(new Api()).mount(router);
+
+        WebClient.create(vertx)
+                .post(port, "127.0.0.1", "/?auth=yes")
+                .expect(ResponsePredicate.SC_NO_CONTENT)
+                .send(context.asyncAssertSuccess());
+
+        WebClient.create(vertx)
+                .post(port, "127.0.0.1", "/?noauth")
+                .expect(ResponsePredicate.SC_UNAUTHORIZED)
                 .send(context.asyncAssertSuccess());
     }
 
