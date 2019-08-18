@@ -7,6 +7,7 @@ import gofabian.vertx.web.mount.param.ParamProviderFactory;
 import gofabian.vertx.web.mount.response.CompositeResponseWriter;
 import gofabian.vertx.web.mount.response.ResponseWriter;
 import gofabian.vertx.web.mount.security.AllowedAuthoritiesHandler;
+import gofabian.vertx.web.mount.security.RequiredAuthoritiesHandler;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Route;
@@ -83,8 +84,12 @@ public class RouteDefinitionMounter {
             context.next();
         });
 
+        // security
         if (!routeDefinition.getAllowedAuthorities().isEmpty()) {
             route.handler(new AllowedAuthoritiesHandler(routeDefinition.getAllowedAuthorities()));
+        }
+        if (!routeDefinition.getRequiredAuthorities().isEmpty()) {
+            route.handler(new RequiredAuthoritiesHandler(routeDefinition.getRequiredAuthorities()));
         }
     }
 

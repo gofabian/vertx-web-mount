@@ -23,19 +23,31 @@ public class AuthorityParser implements RouteParser {
     }
 
     private void visitAnnotations(AnnotatedElement annotatedElement, RouteDefinition routeDefinition) {
-        AuthoritiesAllowed annotation = annotatedElement.getAnnotation(AuthoritiesAllowed.class);
-        if (annotation != null) {
-            List<String> list = Arrays.asList(annotation.value());
+        AuthoritiesAllowed authoritiesAllowed = annotatedElement.getAnnotation(AuthoritiesAllowed.class);
+        if (authoritiesAllowed != null) {
+            List<String> list = Arrays.asList(authoritiesAllowed.value());
             routeDefinition.getAllowedAuthorities().addAll(list);
+        }
+
+        AuthoritiesRequired authoritiesRequired = annotatedElement.getAnnotation(AuthoritiesRequired.class);
+        if (authoritiesRequired != null) {
+            List<String> list = Arrays.asList(authoritiesRequired.value());
+            routeDefinition.getRequiredAuthorities().addAll(list);
         }
     }
 
     @Override
     public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result) {
         if (child.getAllowedAuthorities().isEmpty()) {
-            result.setAllowedAuthorities(parent.getAllowedAuthorities());
+            result.getAllowedAuthorities().addAll(parent.getAllowedAuthorities());
         } else {
-            result.setAllowedAuthorities(child.getAllowedAuthorities());
+            result.getAllowedAuthorities().addAll(child.getAllowedAuthorities());
+        }
+
+        if (child.getRequiredAuthorities().isEmpty()) {
+            result.getRequiredAuthorities().addAll(parent.getRequiredAuthorities());
+        } else {
+            result.getRequiredAuthorities().addAll(child.getRequiredAuthorities());
         }
     }
 

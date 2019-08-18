@@ -1,6 +1,7 @@
 package gofabian.vertx.web.mount;
 
 import gofabian.vertx.web.mount.security.AuthoritiesAllowed;
+import gofabian.vertx.web.mount.security.AuthoritiesRequired;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -72,6 +73,28 @@ public class AuthorityIntegrationTest {
 
         WebClient.create(vertx)
                 .post(port, "127.0.0.1", "/?authority=role:admin")
+                .expect(ResponsePredicate.SC_FORBIDDEN)
+                .send(context.asyncAssertSuccess());
+    }
+
+    @Test
+    public void requiredAuthorities(TestContext context) {
+        @AuthoritiesRequired("right:read")
+        class Api {
+            @POST
+            @Path("/")
+            public void route() {
+            }
+        }
+        new VertxWebMounter().addApiDefinition(new Api()).mount(router);
+
+        WebClient.create(vertx)
+                .post(port, "127.0.0.1", "/?authority=right:read")
+                .expect(ResponsePredicate.SC_NO_CONTENT)
+                .send(context.asyncAssertSuccess());
+
+        WebClient.create(vertx)
+                .post(port, "127.0.0.1", "/?authority=right:write")
                 .expect(ResponsePredicate.SC_FORBIDDEN)
                 .send(context.asyncAssertSuccess());
     }

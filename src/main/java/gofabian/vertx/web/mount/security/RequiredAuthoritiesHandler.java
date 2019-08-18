@@ -5,11 +5,11 @@ import io.vertx.ext.web.RoutingContext;
 
 import java.util.List;
 
-public class AllowedAuthoritiesHandler implements Handler<RoutingContext> {
-    private final List<String> allowedAuthorities;
+public class RequiredAuthoritiesHandler implements Handler<RoutingContext> {
+    private final List<String> requiredAuthorities;
 
-    public AllowedAuthoritiesHandler(List<String> allowedAuthorities) {
-        this.allowedAuthorities = allowedAuthorities;
+    public RequiredAuthoritiesHandler(List<String> requiredAuthorities) {
+        this.requiredAuthorities = requiredAuthorities;
     }
 
     @Override
@@ -19,7 +19,7 @@ public class AllowedAuthoritiesHandler implements Handler<RoutingContext> {
             return;
         }
 
-        AuthoritiesHelper.hasUserAnyAuthority(context.user(), allowedAuthorities).setHandler(ar -> {
+        AuthoritiesHelper.hasUserAllAuthorities(context.user(), requiredAuthorities).setHandler(ar -> {
             if (ar.failed()) {
                 context.response().setStatusCode(500).end("Internal Server Error");
                 return;
