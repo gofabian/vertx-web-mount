@@ -1,0 +1,20 @@
+package gofabian.vertx.web.mount.security;
+
+import gofabian.vertx.web.mount.configurator.RouteConfigurator;
+import gofabian.vertx.web.mount.definition.RouteDefinition;
+import io.vertx.ext.web.Route;
+
+public class SecurityConfigurator implements RouteConfigurator {
+    @Override
+    public void configure(RouteDefinition routeDefinition, Route route) {
+        if (routeDefinition.isAuthenticationRequired() != null && routeDefinition.isAuthenticationRequired()) {
+            route.handler(new AuthenticationRequiredHandler());
+        }
+        if (!routeDefinition.getAllowedAuthorities().isEmpty()) {
+            route.handler(new AllowedAuthoritiesHandler(routeDefinition.getAllowedAuthorities()));
+        }
+        if (!routeDefinition.getRequiredAuthorities().isEmpty()) {
+            route.handler(new RequiredAuthoritiesHandler(routeDefinition.getRequiredAuthorities()));
+        }
+    }
+}

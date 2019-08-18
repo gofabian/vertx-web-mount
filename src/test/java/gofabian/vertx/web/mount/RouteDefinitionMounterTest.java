@@ -1,5 +1,6 @@
 package gofabian.vertx.web.mount;
 
+import gofabian.vertx.web.mount.configurator.*;
 import gofabian.vertx.web.mount.definition.ParamCategory;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
@@ -71,7 +72,13 @@ public class RouteDefinitionMounterTest {
                 new TextResponseWriter(),
                 new ObjectTypeResponseWriter()
         );
-        routeDefinitionMounter = new RouteDefinitionMounter(apiInvokerMock, paramProviderFactories, responseWriters);
+        List<RouteConfigurator> routeConfigurators = Arrays.asList(
+                new RouteAttributesConfigurator(),
+                new BodyHandlerConfigurator(),
+                new NegotiationConfigurator(),
+                new NoContentConfigurator()
+        );
+        routeDefinitionMounter = new RouteDefinitionMounter(apiInvokerMock, paramProviderFactories, responseWriters, routeConfigurators);
     }
 
     @After

@@ -1,15 +1,18 @@
 package gofabian.vertx.web.mount;
 
+import gofabian.vertx.web.mount.configurator.*;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import gofabian.vertx.web.mount.jaxrs.JaxrsParser;
 import gofabian.vertx.web.mount.param.*;
 import gofabian.vertx.web.mount.parser.*;
-import gofabian.vertx.web.mount.security.SecurityParser;
 import gofabian.vertx.web.mount.request.*;
 import gofabian.vertx.web.mount.response.*;
+import gofabian.vertx.web.mount.security.SecurityConfigurator;
+import gofabian.vertx.web.mount.security.SecurityParser;
 import io.vertx.ext.web.Router;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,29 +20,20 @@ public class VertxWebMounter {
 
     private RouteDefinitionFactory routeDefinitionFactory = new RouteDefinitionFactoryImpl();
     private RouteDefinitionInvoker routeDefinitionInvoker = new RouteDefinitionInvokerImpl();
-    private List<Object> apiDefinitions = new ArrayList<>();
-    private List<ParamProviderFactory> paramProviderFactories = new ArrayList<>();
     private List<RequestReader> requestReaders = new ArrayList<>();
     private List<ResponseWriter> responseWriters = new ArrayList<>();
+    private List<ParamProviderFactory> paramProviderFactories = new ArrayList<>();
     private List<RouteParser> parsers = new ArrayList<>();
+    private List<RouteConfigurator> configurators = new ArrayList<>();
+    private List<Object> apiDefinitions = new ArrayList<>();
 
     public VertxWebMounter setRouteDefinitionFactory(RouteDefinitionFactory routeDefinitionFactory) {
         this.routeDefinitionFactory = routeDefinitionFactory;
         return this;
     }
 
-    public VertxWebMounter addParser(RouteParser parser) {
-        parsers.add(parser);
-        return this;
-    }
-
     public VertxWebMounter setRouteDefinitionInvoker(RouteDefinitionInvoker routeDefinitionInvoker) {
         this.routeDefinitionInvoker = routeDefinitionInvoker;
-        return this;
-    }
-
-    public VertxWebMounter addParamProviderFactory(ParamProviderFactory paramProviderFactory) {
-        paramProviderFactories.add(paramProviderFactory);
         return this;
     }
 
@@ -50,6 +44,21 @@ public class VertxWebMounter {
 
     public VertxWebMounter addResponseWriter(ResponseWriter responseWriter) {
         responseWriters.add(responseWriter);
+        return this;
+    }
+
+    public VertxWebMounter addParamProviderFactory(ParamProviderFactory paramProviderFactory) {
+        paramProviderFactories.add(paramProviderFactory);
+        return this;
+    }
+
+    public VertxWebMounter addRouteParser(RouteParser parser) {
+        parsers.add(parser);
+        return this;
+    }
+
+    public VertxWebMounter addRouteConfigurator(RouteConfigurator configurator) {
+        configurators.add(configurator);
         return this;
     }
 
@@ -83,7 +92,16 @@ public class VertxWebMounter {
         responseWriters.add(new TextResponseWriter());
         responseWriters.add(new ObjectTypeResponseWriter());
 
-        RouteDefinitionMounter routeDefinitionMounter = new RouteDefinitionMounter(routeDefinitionInvoker, paramProviderFactories, responseWriters);
+        List<RouteConfigurator> routeConfigurators = new ArrayList<>(Arrays.asList(
+                new RouteAttributesConfigurator(),
+                new BodyHandlerConfigurator(),
+                new NegotiationConfigurator(),
+                new NoContentConfigurator(),
+                new SecurityConfigurator()
+        ));
+        routeConfigurators.addAll(configurators);
+
+        RouteDefinitionMounter routeDefinitionMounter = new RouteDefinitionMounter(routeDefinitionInvoker, paramProviderFactories, responseWriters, routeConfigurators);
 
         List<RouteParser> parsers = new ArrayList<>();
         parsers.add(new ReturnTypeParser());

@@ -1,28 +1,22 @@
 package gofabian.vertx.web.mount;
 
+import gofabian.vertx.web.mount.configurator.RouteConfigurator;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import gofabian.vertx.web.mount.param.ParamProvider;
 import gofabian.vertx.web.mount.param.ParamProviderFactory;
 import gofabian.vertx.web.mount.response.CompositeResponseWriter;
 import gofabian.vertx.web.mount.response.ResponseWriter;
-import gofabian.vertx.web.mount.security.AllowedAuthoritiesHandler;
-import gofabian.vertx.web.mount.security.AuthenticationRequiredHandler;
-import gofabian.vertx.web.mount.security.RequiredAuthoritiesHandler;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.ResponseContentTypeHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static io.vertx.core.http.HttpHeaders.CONTENT_LENGTH;
 
 public class RouteDefinitionMounter {
 
@@ -31,70 +25,26 @@ public class RouteDefinitionMounter {
     private final RouteDefinitionInvoker routeDefinitionInvoker;
     private final List<ParamProviderFactory> parameterProviderFactories;
     private final ResponseWriter responseWriter;
+    private final List<RouteConfigurator> routeConfigurators;
 
     public RouteDefinitionMounter(RouteDefinitionInvoker routeDefinitionInvoker,
                                   List<ParamProviderFactory> parameterProviderFactories,
-                                  List<ResponseWriter> responseWriters) {
+                                  List<ResponseWriter> responseWriters,
+                                  List<RouteConfigurator> routeConfigurators) {
         this.routeDefinitionInvoker = routeDefinitionInvoker;
         this.parameterProviderFactories = parameterProviderFactories;
         this.responseWriter = new CompositeResponseWriter(responseWriters);
+        this.routeConfigurators = routeConfigurators;
     }
 
     public Route mountRoute(Router router, Object apiDefinition, RouteDefinition routeDefinition) {
         log.info("Mount route " + routeDefinition);
 
-        Route vertxRoute = router.route(routeDefinition.getPath());
-        routeDefinition.getMethods().forEach(m -> vertxRoute.method(m));
-        routeDefinition.getConsumes().forEach(vertxRoute::consumes);
-        routeDefinition.getProduces().forEach(vertxRoute::produces);
-
-        addIntermediateRouteHandlers(routeDefinition, vertxRoute);
-
+        Route vertxRoute = router.route();
+        routeConfigurators.forEach(configurator -> configurator.configure(routeDefinition, vertxRoute));
         Handler<RoutingContext> routeHandler = createRouteHandler(apiDefinition, routeDefinition);
         vertxRoute.handler(routeHandler);
         return vertxRoute;
-    }
-
-    private void addIntermediateRouteHandlers(RouteDefinition routeDefinition, Route route) {
-        // read request body
-        route.handler(BodyHandler.create());
-
-        // set negotiated content-type
-        route.handler(ResponseContentTypeHandler.create());
-
-        // set acceptable content-type fallback
-        if (!routeDefinition.getProduces().isEmpty()) {
-            String fallbackContentType = routeDefinition.getProduces().get(0);
-            route.handler(context -> {
-                if (context.getAcceptableContentType() == null) {
-                    log.debug("No content negotiation, use content-type fallback: " + fallbackContentType);
-                    context.setAcceptableContentType(fallbackContentType);
-                }
-                context.next();
-            });
-        }
-
-        // status 200 + no response body -> status 204
-        route.handler(context -> {
-            context.addHeadersEndHandler(x -> {
-                if ("0".equals(context.response().headers().get(CONTENT_LENGTH))
-                        && context.response().getStatusCode() == 200) {
-                    context.response().setStatusCode(204);
-                }
-            });
-            context.next();
-        });
-
-        // security
-        if (routeDefinition.isAuthenticationRequired() != null && routeDefinition.isAuthenticationRequired()) {
-            route.handler(new AuthenticationRequiredHandler());
-        }
-        if (!routeDefinition.getAllowedAuthorities().isEmpty()) {
-            route.handler(new AllowedAuthoritiesHandler(routeDefinition.getAllowedAuthorities()));
-        }
-        if (!routeDefinition.getRequiredAuthorities().isEmpty()) {
-            route.handler(new RequiredAuthoritiesHandler(routeDefinition.getRequiredAuthorities()));
-        }
     }
 
     private Handler<RoutingContext> createRouteHandler(Object apiDefinition, RouteDefinition routeDefinition) {
