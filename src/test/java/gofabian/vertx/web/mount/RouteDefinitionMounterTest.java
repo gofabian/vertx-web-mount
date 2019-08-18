@@ -127,9 +127,7 @@ public class RouteDefinitionMounterTest {
         WebClient.create(vertx)
                 .get(port, "127.0.0.1", "/get")
                 .expect(ResponsePredicate.SC_INTERNAL_SERVER_ERROR)
-                .send(context.asyncAssertSuccess(response -> {
-                    assertTrue(response.bodyAsString().contains("severe"));
-                }));
+                .send(context.asyncAssertSuccess());
     }
 
     @Test
@@ -147,9 +145,7 @@ public class RouteDefinitionMounterTest {
         WebClient.create(vertx)
                 .put(port, "127.0.0.1", "/put")
                 .expect(ResponsePredicate.SC_INTERNAL_SERVER_ERROR)
-                .send(context.asyncAssertSuccess(response -> {
-                    assertTrue(response.bodyAsString().contains("fail"));
-                }));
+                .send(context.asyncAssertSuccess());
     }
 
     @Test

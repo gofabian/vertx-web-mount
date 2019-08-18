@@ -60,7 +60,7 @@ public class RouteDefinitionMounter {
             try {
                 handleRoute(apiDefinition, routeDefinition, paramProviders, context);
             } catch (Exception e) {
-                handleException(context, e);
+                context.fail(e);
             }
         };
     }
@@ -86,7 +86,7 @@ public class RouteDefinitionMounter {
                     return null;
                 })
                 .otherwise(e -> {
-                    handleException(context, e);
+                    context.fail(e);
                     return null;
                 });
     }
@@ -111,19 +111,6 @@ public class RouteDefinitionMounter {
                 log.warn("Response written successfully but RoutingContext not ended");
             }
             response.end();
-        }
-    }
-
-    private void handleException(RoutingContext context, Throwable e) {
-        log.error("Unexpected exception", e);
-
-        HttpServerResponse response = context.response();
-        if (!response.ended()) {
-            String message = e.getClass().getName() + ": " + e.getMessage();
-
-            response.putHeader("content-type", "text/plain")
-                    .setStatusCode(500)
-                    .end(message);
         }
     }
 
