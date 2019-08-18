@@ -1,4 +1,4 @@
-package gofabian.vertx.web.mount.parse;
+package gofabian.vertx.web.mount.parser;
 
 import gofabian.vertx.web.mount.RouteDefinitionInvokerImpl;
 import gofabian.vertx.web.mount.definition.RouteDefinition;

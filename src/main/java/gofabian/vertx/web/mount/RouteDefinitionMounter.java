@@ -6,6 +6,7 @@ import gofabian.vertx.web.mount.param.ParamProvider;
 import gofabian.vertx.web.mount.param.ParamProviderFactory;
 import gofabian.vertx.web.mount.response.CompositeResponseWriter;
 import gofabian.vertx.web.mount.response.ResponseWriter;
+import gofabian.vertx.web.mount.security.AllowedAuthoritiesHandler;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Route;
@@ -45,10 +46,10 @@ public class RouteDefinitionMounter {
         routeDefinition.getConsumes().forEach(vertxRoute::consumes);
         routeDefinition.getProduces().forEach(vertxRoute::produces);
 
-        Handler<RoutingContext> routeHandler = createRouteHandler(apiDefinition, routeDefinition);
         addIntermediateRouteHandlers(routeDefinition, vertxRoute);
-        vertxRoute.handler(routeHandler);
 
+        Handler<RoutingContext> routeHandler = createRouteHandler(apiDefinition, routeDefinition);
+        vertxRoute.handler(routeHandler);
         return vertxRoute;
     }
 
@@ -81,6 +82,10 @@ public class RouteDefinitionMounter {
             });
             context.next();
         });
+
+        if (!routeDefinition.getAllowedAuthorities().isEmpty()) {
+            route.handler(new AllowedAuthoritiesHandler(routeDefinition.getAllowedAuthorities()));
+        }
     }
 
     private Handler<RoutingContext> createRouteHandler(Object apiDefinition, RouteDefinition routeDefinition) {

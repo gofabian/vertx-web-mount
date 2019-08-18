@@ -18,36 +18,9 @@ public class RouteDefinition {
     private List<ParamDefinition> params = new ArrayList<>();
     private Type responseType;
 
-    public RouteDefinition withSubRouteDefinition(RouteDefinition subRouteDefinition) {
-        RouteDefinition routeDefinition = new RouteDefinition().setContext(subRouteDefinition.context);
-
-        routeDefinition.methods = combineList(methods, subRouteDefinition.methods);
-        routeDefinition.path = combinePath(path, subRouteDefinition.path);
-        routeDefinition.consumes = subRouteDefinition.consumes.isEmpty() ? consumes : subRouteDefinition.consumes;
-        routeDefinition.produces = subRouteDefinition.produces.isEmpty() ? produces : subRouteDefinition.produces;
-        routeDefinition.params = combineList(params, subRouteDefinition.params);
-        routeDefinition.responseType = subRouteDefinition.responseType;
-
-        return routeDefinition;
-    }
-
-    private <T> List<T> combineList(List<T> a, List<T> b) {
-        List<T> list = new ArrayList<>(a);
-        list.addAll(b);
-        return list;
-    }
-
-    private String combinePath(String parent, String child) {
-        if (parent == null) return child;
-        if (child == null) return parent;
-
-        // parent + child != null
-        if ("/".equals(parent)) return child;
-        if ("/".equals(child)) return parent;
-
-        // parent + child != "/"
-        return parent + child;
-    }
+    private boolean isAuthenticationRequired;
+    private List<String> allowedAuthorities = new ArrayList<>();
+    private List<String> requiredAuthorities = new ArrayList<>();
 
     public Object getContext() {
         return context;
@@ -125,6 +98,33 @@ public class RouteDefinition {
         return this;
     }
 
+    public boolean isAuthenticationRequired() {
+        return isAuthenticationRequired;
+    }
+
+    public RouteDefinition setAuthenticationRequired(boolean authenticationRequired) {
+        isAuthenticationRequired = authenticationRequired;
+        return this;
+    }
+
+    public List<String> getAllowedAuthorities() {
+        return allowedAuthorities;
+    }
+
+    public RouteDefinition setAllowedAuthorities(List<String> allowedAuthorities) {
+        this.allowedAuthorities = allowedAuthorities;
+        return this;
+    }
+
+    public List<String> getRequiredAuthorities() {
+        return requiredAuthorities;
+    }
+
+    public RouteDefinition setRequiredAuthorities(List<String> requiredAuthorities) {
+        this.requiredAuthorities = requiredAuthorities;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "RouteDefinition{" +
@@ -135,6 +135,9 @@ public class RouteDefinition {
                 ", produces=" + produces +
                 ", params=" + params +
                 ", responseType=" + responseType +
+                ", isAuthenticationRequired=" + isAuthenticationRequired +
+                ", allowedAuthorities=" + allowedAuthorities +
+                ", requiredAuthorities=" + requiredAuthorities +
                 '}';
     }
 }

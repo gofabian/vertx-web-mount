@@ -1,8 +1,10 @@
 package gofabian.vertx.web.mount;
 
 import gofabian.vertx.web.mount.definition.RouteDefinition;
+import gofabian.vertx.web.mount.jaxrs.JaxrsParser;
 import gofabian.vertx.web.mount.param.*;
-import gofabian.vertx.web.mount.parse.*;
+import gofabian.vertx.web.mount.parser.*;
+import gofabian.vertx.web.mount.security.AuthorityParser;
 import gofabian.vertx.web.mount.request.*;
 import gofabian.vertx.web.mount.response.*;
 import io.vertx.ext.web.Router;
@@ -86,6 +88,7 @@ public class VertxWebMounter {
         List<RouteParser> parsers = new ArrayList<>();
         parsers.add(new ReturnTypeParser());
         parsers.add(new JaxrsParser());
+        parsers.add(new AuthorityParser());
         parsers.addAll(this.parsers);
         RouteParser parser = new CompositeRouteParser(parsers);
 

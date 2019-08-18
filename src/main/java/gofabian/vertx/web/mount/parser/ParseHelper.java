@@ -1,4 +1,4 @@
-package gofabian.vertx.web.mount.parse;
+package gofabian.vertx.web.mount.parser;
 
 import java.util.ArrayList;
 import java.util.Arrays;

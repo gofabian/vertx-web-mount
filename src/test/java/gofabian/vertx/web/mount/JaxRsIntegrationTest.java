@@ -22,7 +22,7 @@ import javax.ws.rs.Produces;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(VertxUnitRunner.class)
-public class JaxRsTest {
+public class JaxRsIntegrationTest {
 
     public static class Entity {
         @SuppressWarnings("WeakerAccess")
