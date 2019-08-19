@@ -20,104 +20,144 @@ public class VertxWebMounter {
 
     private RouteDefinitionFactory routeDefinitionFactory = new RouteDefinitionFactoryImpl();
     private RouteDefinitionInvoker routeDefinitionInvoker = new RouteDefinitionInvokerImpl();
-    private List<RequestReader> requestReaders = new ArrayList<>();
-    private List<ResponseWriter> responseWriters = new ArrayList<>();
-    private List<ParamProviderFactory> paramProviderFactories = new ArrayList<>();
-    private List<RouteParser> parsers = new ArrayList<>();
-    private List<RouteConfigurator> configurators = new ArrayList<>();
-    private List<Object> apiDefinitions = new ArrayList<>();
+
+    private final ClassAccessList<RequestReader> requestReaders;
+    private final ClassAccessList<ResponseWriter> responseWriters;
+    private final ClassAccessList<ParamProviderFactory> paramProviderFactories;
+    private final ClassAccessList<RouteParser> routeParsers;
+    private final ClassAccessList<RouteConfigurator> routeConfigurators;
+
+    private final List<Object> apiDefinitions = new ArrayList<>();
     private MountOptions options = new MountOptions();
 
+    public VertxWebMounter() {
+        requestReaders = new ClassAccessList<>(Arrays.asList(
+                new JsonRequestReader(),
+                new BufferRequestReader(),
+                new FallbackRequestReader()
+        ));
+        responseWriters = new ClassAccessList<>(Arrays.asList(
+                new ResponseEntityTypeResponseWriter(),
+                new BufferTypeResponseWriter(),
+                new JsonResponseWriter(),
+                new TextResponseWriter(),
+                new ObjectTypeResponseWriter()
+        ));
+        RequestReader compositeRequestReader = new CompositeRequestReader(requestReaders.getList());
+        paramProviderFactories = new ClassAccessList<>(Arrays.asList(
+                new RoutingContextParamProviderFactory(),
+                new VertxParamProviderFactory(),
+                new HttpRequestParamProviderFactory(),
+                new HttpResponseParamProviderFactory(),
+                new UserParamProviderFactory(),
+                new PathParamProviderFactory(),
+                new QueryParamProviderFactory(),
+                new BodyParamProviderFactory(compositeRequestReader)
+        ));
+        routeParsers = new ClassAccessList<>(Arrays.asList(
+                new ReturnTypeParser(),
+                new JaxrsParser(),
+                new SecurityParser()
+        ));
+        routeConfigurators = new ClassAccessList<>(Arrays.asList(
+                new RouteAttributesConfigurator(),
+                new BodyHandlerConfigurator(),
+                new SecurityConfigurator(),
+                new NegotiationConfigurator(),
+                new NoContentConfigurator()
+        ));
+    }
+
     public VertxWebMounter setRouteDefinitionFactory(RouteDefinitionFactory routeDefinitionFactory) {
+        Objects.requireNonNull(routeDefinitionFactory);
         this.routeDefinitionFactory = routeDefinitionFactory;
         return this;
     }
 
     public VertxWebMounter setRouteDefinitionInvoker(RouteDefinitionInvoker routeDefinitionInvoker) {
+        Objects.requireNonNull(routeDefinitionInvoker);
         this.routeDefinitionInvoker = routeDefinitionInvoker;
         return this;
     }
 
     public VertxWebMounter addRequestReader(RequestReader requestReader) {
-        requestReaders.add(requestReader);
+        Objects.requireNonNull(requestReader);
+        requestReaders.addFirst(requestReader);
         return this;
+    }
+
+    public ClassAccessList<RequestReader> getRequestReaders() {
+        return requestReaders;
     }
 
     public VertxWebMounter addResponseWriter(ResponseWriter responseWriter) {
-        responseWriters.add(responseWriter);
+        Objects.requireNonNull(responseWriter);
+        responseWriters.addFirst(responseWriter);
         return this;
+    }
+
+    public ClassAccessList<ResponseWriter> getResponseWriters() {
+        return responseWriters;
     }
 
     public VertxWebMounter addParamProviderFactory(ParamProviderFactory paramProviderFactory) {
-        paramProviderFactories.add(paramProviderFactory);
+        Objects.requireNonNull(paramProviderFactory);
+        paramProviderFactories.addFirst(paramProviderFactory);
         return this;
     }
 
-    public VertxWebMounter addRouteParser(RouteParser parser) {
-        parsers.add(parser);
+    public ClassAccessList<ParamProviderFactory> getParamProviderFactories() {
+        return paramProviderFactories;
+    }
+
+    public VertxWebMounter addRouteParser(RouteParser routeParser) {
+        Objects.requireNonNull(routeParser);
+        routeParsers.addFirst(routeParser);
         return this;
     }
 
-    public VertxWebMounter addRouteConfigurator(RouteConfigurator configurator) {
-        configurators.add(configurator);
+    public ClassAccessList<RouteParser> getRouteParsers() {
+        return routeParsers;
+    }
+
+    public VertxWebMounter addRouteConfigurator(RouteConfigurator routeConfigurator) {
+        Objects.requireNonNull(routeConfigurator);
+        routeConfigurators.addFirst(routeConfigurator);
         return this;
     }
 
-    public void setOptions(MountOptions options) {
-        this.options = options;
+    public ClassAccessList<RouteConfigurator> getRouteConfigurators() {
+        return routeConfigurators;
     }
 
     public VertxWebMounter addApiDefinition(Object apiDefinition) {
-        Objects.requireNonNull(apiDefinition, "API definition must not be null!");
+        Objects.requireNonNull(apiDefinition);
         this.apiDefinitions.add(apiDefinition);
         return this;
     }
 
+    public void setOptions(MountOptions options) {
+        Objects.requireNonNull(options);
+        this.options = options;
+    }
+
+    public MountOptions getOptions() {
+        return options;
+    }
+
     public void mount(Router router) {
-        List<RequestReader> requestReaders = new ArrayList<>(this.requestReaders);
-        requestReaders.add(new JsonRequestReader());
-        requestReaders.add(new BufferRequestReader());
-        requestReaders.add(new FallbackRequestReader());
-        RequestReader globalRequestReader = new CompositeRequestReader(requestReaders);
+        Objects.requireNonNull(router);
 
-        List<ParamProviderFactory> paramProviderFactories = new ArrayList<>(this.paramProviderFactories);
-        paramProviderFactories.add(new RoutingContextParamProviderFactory());
-        paramProviderFactories.add(new VertxParamProviderFactory());
-        paramProviderFactories.add(new HttpRequestParamProviderFactory());
-        paramProviderFactories.add(new HttpResponseParamProviderFactory());
-        paramProviderFactories.add(new UserParamProviderFactory());
-        paramProviderFactories.add(new PathParamProviderFactory());
-        paramProviderFactories.add(new QueryParamProviderFactory());
-        paramProviderFactories.add(new BodyParamProviderFactory(globalRequestReader));
-
-        List<ResponseWriter> responseWriters = new ArrayList<>(this.responseWriters);
-        responseWriters.add(new ResponseEntityTypeResponseWriter());
-        responseWriters.add(new BufferTypeResponseWriter());
-        responseWriters.add(new JsonResponseWriter());
-        responseWriters.add(new TextResponseWriter());
-        responseWriters.add(new ObjectTypeResponseWriter());
-
-        List<RouteConfigurator> routeConfigurators = new ArrayList<>(Arrays.asList(
-                new RouteAttributesConfigurator(),
-                new BodyHandlerConfigurator(),
-                new NegotiationConfigurator(),
-                new NoContentConfigurator(),
-                new SecurityConfigurator()
-        ));
-        routeConfigurators.addAll(configurators);
+        ResponseWriter compositeResponseWriter = new CompositeResponseWriter(responseWriters.getList());
 
         RouteDefinitionMounter routeDefinitionMounter = new RouteDefinitionMounter(routeDefinitionInvoker,
-                paramProviderFactories, responseWriters, routeConfigurators, options);
+                compositeResponseWriter, paramProviderFactories.getList(), routeConfigurators.getList(), options);
 
-        List<RouteParser> parsers = new ArrayList<>();
-        parsers.add(new ReturnTypeParser());
-        parsers.add(new JaxrsParser());
-        parsers.add(new SecurityParser());
-        parsers.addAll(this.parsers);
-        RouteParser parser = new CompositeRouteParser(parsers);
+        RouteParser compositeRouteParser = new CompositeRouteParser(routeParsers.getList());
 
         for (Object apiDefinition : apiDefinitions) {
-            List<RouteDefinition> routeDefinitions = routeDefinitionFactory.create(apiDefinition, parser, null);
+            List<RouteDefinition> routeDefinitions = routeDefinitionFactory.create(apiDefinition, compositeRouteParser,
+                    null);
 
             if (routeDefinitions.isEmpty()) {
                 throw new IllegalArgumentException("Given api instance has no route definitions: " + apiDefinition);

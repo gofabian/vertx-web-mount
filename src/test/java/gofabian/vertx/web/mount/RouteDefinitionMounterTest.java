@@ -65,20 +65,20 @@ public class RouteDefinitionMounterTest {
                 new QueryParamProviderFactory(),
                 new BodyParamProviderFactory(requestReader)
         );
-        List<ResponseWriter> responseWriters = Arrays.asList(
+        ResponseWriter responseWriter = new CompositeResponseWriter(Arrays.asList(
                 new ResponseEntityTypeResponseWriter(),
                 new BufferTypeResponseWriter(),
                 new JsonResponseWriter(),
                 new TextResponseWriter(),
                 new ObjectTypeResponseWriter()
-        );
+        ));
         List<RouteConfigurator> routeConfigurators = Arrays.asList(
                 new RouteAttributesConfigurator(),
                 new BodyHandlerConfigurator(),
                 new NegotiationConfigurator(),
                 new NoContentConfigurator()
         );
-        routeDefinitionMounter = new RouteDefinitionMounter(apiInvokerMock, paramProviderFactories, responseWriters,
+        routeDefinitionMounter = new RouteDefinitionMounter(apiInvokerMock, responseWriter, paramProviderFactories,
                 routeConfigurators, new MountOptions());
     }
 

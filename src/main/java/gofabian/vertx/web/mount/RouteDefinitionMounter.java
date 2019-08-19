@@ -5,7 +5,6 @@ import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import gofabian.vertx.web.mount.param.ParamProvider;
 import gofabian.vertx.web.mount.param.ParamProviderFactory;
-import gofabian.vertx.web.mount.response.CompositeResponseWriter;
 import gofabian.vertx.web.mount.response.ResponseWriter;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
@@ -29,13 +28,13 @@ public class RouteDefinitionMounter {
     private final MountOptions options;
 
     public RouteDefinitionMounter(RouteDefinitionInvoker routeDefinitionInvoker,
+                                  ResponseWriter responseWriter,
                                   List<ParamProviderFactory> parameterProviderFactories,
-                                  List<ResponseWriter> responseWriters,
                                   List<RouteConfigurator> routeConfigurators,
                                   MountOptions options) {
         this.routeDefinitionInvoker = routeDefinitionInvoker;
         this.parameterProviderFactories = parameterProviderFactories;
-        this.responseWriter = new CompositeResponseWriter(responseWriters);
+        this.responseWriter = responseWriter;
         this.routeConfigurators = routeConfigurators;
         this.options = options;
     }
