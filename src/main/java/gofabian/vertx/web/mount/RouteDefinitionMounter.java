@@ -14,6 +14,7 @@ import io.vertx.ext.web.RoutingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,6 +51,12 @@ public class RouteDefinitionMounter {
     }
 
     private Handler<RoutingContext> createRouteHandler(Object apiDefinition, RouteDefinition routeDefinition) {
+        if (!(routeDefinition.getContext() instanceof Method)) {
+            throw new IllegalArgumentException("Context of RouteDefinition is not a " + Method.class + ":" +
+                    routeDefinition.getContext());
+        }
+        Method method = (Method) routeDefinition.getContext();
+
         List<ParamProvider> paramProviders = routeDefinition.getParams()
                 .stream()
                 .map(this::createParameterProvider)
@@ -57,7 +64,7 @@ public class RouteDefinitionMounter {
 
         return context -> {
             try {
-                handleRoute(apiDefinition, routeDefinition, paramProviders, context);
+                handleRoute(apiDefinition, method, paramProviders, context);
             } catch (Exception e) {
                 context.fail(e);
             }
@@ -73,13 +80,13 @@ public class RouteDefinitionMounter {
         throw new IllegalArgumentException("No ParameterProvider for param definition: " + paramDefinition);
     }
 
-    private void handleRoute(Object apiDefinition, RouteDefinition routeDefinition, List<ParamProvider> paramProviders,
+    private void handleRoute(Object apiDefinition, Method method, List<ParamProvider> paramProviders,
                              RoutingContext context) throws Exception {
         Object[] args = paramProviders.stream()
                 .map(p -> p.provide(context))
                 .toArray();
 
-        routeDefinitionInvoker.invoke(apiDefinition, routeDefinition, context, args)
+        routeDefinitionInvoker.invoke(apiDefinition, method, args)
                 .map(result -> {
                     handleResult(context, result);
                     return null;

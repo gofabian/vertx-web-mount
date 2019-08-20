@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +34,16 @@ import static org.junit.Assert.*;
 
 @RunWith(VertxUnitRunner.class)
 public class RouteDefinitionMounterTest {
+
+    private static Method runMethod;
+
+    static {
+        try {
+            runMethod = Runnable.class.getMethod("run");
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
 
     private Vertx vertx;
     private int port;
@@ -93,34 +104,35 @@ public class RouteDefinitionMounterTest {
                 .setCategory(ParamCategory.BODY)
                 .setType(String.class);
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.POST))
                 .setPath("/post")
                 .setParams(Arrays.asList(paramDefinition))
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
-            return Future.succeededFuture(apiSpec + "+" + routeSpec1.getPath() + "+"
-                    + context1.getBodyAsString() + "+" + args[0]);
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
+            return Future.succeededFuture(apiSpec + "+" + method.getName() + "+" + args[0]);
         });
 
         WebClient.create(vertx)
                 .post(port, "127.0.0.1", "/post")
                 .expect(ResponsePredicate.SC_OK)
                 .sendBuffer(Buffer.buffer("zero"), context.asyncAssertSuccess(response -> {
-                    assertEquals("api-spec+/post+zero+zero", response.bodyAsString());
+                    assertEquals("api-spec+run+zero", response.bodyAsString());
                 }));
     }
 
     @Test
     public void testApiInvokerThrowsException(TestContext context) {
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/get")
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             throw new Exception("severe");
         });
 
@@ -133,12 +145,13 @@ public class RouteDefinitionMounterTest {
     @Test
     public void testApiInvokerFails(TestContext context) {
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.PUT))
                 .setPath("/put")
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.failedFuture("fail");
         });
 
@@ -149,36 +162,16 @@ public class RouteDefinitionMounterTest {
     }
 
     @Test
-    public void testEarlyResponseEnd(TestContext context) {
-        RouteDefinition routeDefinition = new RouteDefinition()
-                .setMethods(Arrays.asList(HttpMethod.GET))
-                .setPath("/")
-                .setResponseType(String.class);
-        routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
-
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
-            context1.response().end("early end");
-            return Future.succeededFuture("will not be written to response");
-        });
-
-        WebClient.create(vertx)
-                .get(port, "127.0.0.1", "/")
-                .expect(ResponsePredicate.SC_OK)
-                .send(context.asyncAssertSuccess(response -> {
-                    assertEquals("early end", response.bodyAsString());
-                }));
-    }
-
-    @Test
     public void testToStringResponseWriter(TestContext context) {
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/")
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
         Object result = new Object();
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture(result);
         });
 
@@ -193,19 +186,19 @@ public class RouteDefinitionMounterTest {
     @Test
     public void testNullResult(TestContext context) {
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/")
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
-            context1.response().setStatusCode(400);
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture("");
         });
 
         WebClient.create(vertx)
                 .get(port, "127.0.0.1", "/")
-                .expect(ResponsePredicate.SC_BAD_REQUEST)
+                .expect(ResponsePredicate.SC_SUCCESS)
                 .send(context.asyncAssertSuccess(response -> {
                     assertNull(response.body());
                 }));
@@ -214,12 +207,13 @@ public class RouteDefinitionMounterTest {
     @Test
     public void testEmptySuccess(TestContext context) {
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/")
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture("");
         });
 
@@ -235,13 +229,14 @@ public class RouteDefinitionMounterTest {
     public void testRoutingContextParameter(TestContext context) {
         ParamDefinition paramDefinition = new ParamDefinition().setType(RoutingContext.class);
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/")
                 .setParams(Arrays.asList(paramDefinition))
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             assertTrue(args[0] instanceof RoutingContext);
             return Future.succeededFuture();
         });
@@ -258,13 +253,14 @@ public class RouteDefinitionMounterTest {
                 .setCategory(ParamCategory.BODY)
                 .setType(String.class);
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.POST))
                 .setPath("/")
                 .setParams(Arrays.asList(paramDefinition))
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture(args[0]);
         });
 
@@ -283,13 +279,14 @@ public class RouteDefinitionMounterTest {
                 .setCategory(ParamCategory.BODY)
                 .setType(Map.class);
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.POST))
                 .setPath("/")
                 .setParams(Arrays.asList(paramDefinition))
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture(((Map) args[0]).get("k"));
         });
 
@@ -308,13 +305,14 @@ public class RouteDefinitionMounterTest {
                 .setCategory(ParamCategory.BODY)
                 .setType(String.class);
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.POST))
                 .setPath("/")
                 .setParams(Arrays.asList(paramDefinition))
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture(args[0]);
         });
 
@@ -330,12 +328,13 @@ public class RouteDefinitionMounterTest {
     @Test
     public void testWriteBufferType(TestContext context) {
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/")
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture(Buffer.buffer("peng"));
         });
 
@@ -350,13 +349,14 @@ public class RouteDefinitionMounterTest {
     @Test
     public void testWriteJsonContentType(TestContext context) {
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/")
                 .setProduces(Arrays.asList("application/json"))
                 .setResponseType(Map.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture(Collections.singletonMap("a", "b"));
         });
 
@@ -373,13 +373,14 @@ public class RouteDefinitionMounterTest {
     @Test
     public void testWriteTextContentType(TestContext context) {
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/")
                 .setProduces(Arrays.asList("text/ugly"))
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture("ugly text");
         });
 
@@ -395,13 +396,14 @@ public class RouteDefinitionMounterTest {
     @Test
     public void testWriteObjectType(TestContext context) {
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/")
                 .setResponseType(Object.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
         Object result = new Object();
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture(result);
         });
 
@@ -416,12 +418,13 @@ public class RouteDefinitionMounterTest {
     @Test
     public void testWriteResponseEntityType(TestContext context) {
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/")
                 .setResponseType(ResponseEntity.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture(ResponseEntity.created("42"));
         });
 
@@ -436,13 +439,14 @@ public class RouteDefinitionMounterTest {
     @Test
     public void testNegotiationFallback(TestContext context) {
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/")
                 .setProduces(Arrays.asList("text/zonk"))
                 .setResponseType(ResponseEntity.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture("response");
         });
 
@@ -471,13 +475,14 @@ public class RouteDefinitionMounterTest {
                 new ParamDefinition().setCategory(ParamCategory.BODY).setType(Float.class)
         );
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.POST))
                 .setPath("/")
                 .setParams(paramDefinitions)
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             List<String> strings = Arrays.stream(args)
                     .map(a -> a.getClass().getSimpleName() + "=" + ((Number) a).intValue())
                     .collect(Collectors.toList());
@@ -501,13 +506,14 @@ public class RouteDefinitionMounterTest {
                 .setCategory(ParamCategory.BODY)
                 .setType(Buffer.class);
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.POST))
                 .setPath("/")
                 .setParams(Arrays.asList(paramDefinition))
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture(args[0].toString());
         });
 
@@ -528,13 +534,14 @@ public class RouteDefinitionMounterTest {
                 .setCategory(ParamCategory.BODY)
                 .setType(Boolean.class);
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.POST))
                 .setPath("/")
                 .setParams(Arrays.asList(paramDefinition1, paramDefinition2))
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             boolean b1 = (boolean) args[0];
             boolean b2 = (boolean) args[1];
             return Future.succeededFuture("=" + (b1 && b2));
@@ -555,13 +562,14 @@ public class RouteDefinitionMounterTest {
                 .setType(String.class)
                 .setName("name");
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/users/:name")
                 .setParams(Arrays.asList(paramDefinition))
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             return Future.succeededFuture(args[0]);
         });
 
@@ -580,13 +588,14 @@ public class RouteDefinitionMounterTest {
                 .setType(int.class)
                 .setName("id");
         RouteDefinition routeDefinition = new RouteDefinition()
+                .setContext(runMethod)
                 .setMethods(Arrays.asList(HttpMethod.GET))
                 .setPath("/users/:id")
                 .setParams(Arrays.asList(paramDefinition))
                 .setResponseType(String.class);
         routeDefinitionMounter.mountRoute(router, "api-spec", routeDefinition);
 
-        apiInvokerMock.mockInvoke((apiSpec, routeSpec1, context1, args) -> {
+        apiInvokerMock.mockInvoke((apiSpec, method, args) -> {
             int id = (int) args[0];
             return Future.succeededFuture(String.valueOf(id));
         });

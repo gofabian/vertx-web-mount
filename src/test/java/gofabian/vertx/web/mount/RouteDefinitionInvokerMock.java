@@ -1,15 +1,15 @@
 package gofabian.vertx.web.mount;
 
-import gofabian.vertx.web.mount.definition.RouteDefinition;
 import io.vertx.core.Future;
-import io.vertx.ext.web.RoutingContext;
+
+import java.lang.reflect.Method;
 
 public class RouteDefinitionInvokerMock implements RouteDefinitionInvoker {
-    private RouteDefinitionInvoker delegate = (apiSpec, routeSpec, context, args) -> null;
+    private RouteDefinitionInvoker delegate = (apiSpec, method, args) -> null;
 
     @Override
-    public Future<Object> invoke(Object apiDefinition, RouteDefinition routeDefinition, RoutingContext context, Object[] args) throws Exception {
-        return delegate.invoke(apiDefinition, routeDefinition, context, args);
+    public Future<?> invoke(Object apiDefinition, Method method, Object[] args) throws Exception {
+        return delegate.invoke(apiDefinition, method, args);
     }
 
     public void mockInvoke(RouteDefinitionInvoker delegate) {
