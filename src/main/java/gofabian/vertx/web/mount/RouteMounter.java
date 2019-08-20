@@ -3,6 +3,7 @@ package gofabian.vertx.web.mount;
 import gofabian.vertx.web.mount.configurator.RouteConfigurator;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
+import gofabian.vertx.web.mount.invoker.RouteInvoker;
 import gofabian.vertx.web.mount.param.ParamProvider;
 import gofabian.vertx.web.mount.param.ParamProviderFactory;
 import gofabian.vertx.web.mount.response.ResponseWriter;

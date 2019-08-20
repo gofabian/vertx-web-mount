@@ -59,16 +59,17 @@ public class SecurityIntegrationTest {
         vertx.close();
     }
 
+    public static class AllowedAuthoritiesApi {
+        @POST
+        @Path("/")
+        @AuthoritiesAllowed("role:user")
+        public void route() {
+        }
+    }
+
     @Test
     public void allowedAuthorities(TestContext context) {
-        class Api {
-            @POST
-            @Path("/")
-            @AuthoritiesAllowed("role:user")
-            public void route() {
-            }
-        }
-        new VertxWebMounter().addApiDefinition(new Api()).mount(router);
+        new VertxWebMounter().addApiDefinition(new AllowedAuthoritiesApi()).mount(router);
 
         WebClient.create(vertx)
                 .post(port, "127.0.0.1", "/?authority=role:user")
@@ -81,16 +82,17 @@ public class SecurityIntegrationTest {
                 .send(context.asyncAssertSuccess());
     }
 
+    @AuthoritiesRequired("right:read")
+    public static class RequiredAuthoritiesApi {
+        @POST
+        @Path("/")
+        public void route() {
+        }
+    }
+
     @Test
     public void requiredAuthorities(TestContext context) {
-        @AuthoritiesRequired("right:read")
-        class Api {
-            @POST
-            @Path("/")
-            public void route() {
-            }
-        }
-        new VertxWebMounter().addApiDefinition(new Api()).mount(router);
+        new VertxWebMounter().addApiDefinition(new RequiredAuthoritiesApi()).mount(router);
 
         WebClient.create(vertx)
                 .post(port, "127.0.0.1", "/?authority=right:read")
@@ -103,16 +105,17 @@ public class SecurityIntegrationTest {
                 .send(context.asyncAssertSuccess());
     }
 
+    @Authenticated
+    public static class AuthenticatedApi {
+        @POST
+        @Path("/")
+        public void route() {
+        }
+    }
+
     @Test
     public void authenticated(TestContext context) {
-        @Authenticated
-        class Api {
-            @POST
-            @Path("/")
-            public void route() {
-            }
-        }
-        new VertxWebMounter().addApiDefinition(new Api()).mount(router);
+        new VertxWebMounter().addApiDefinition(new AuthenticatedApi()).mount(router);
 
         WebClient.create(vertx)
                 .post(port, "127.0.0.1", "/?auth=yes")

@@ -1,6 +1,5 @@
-package gofabian.vertx.web.mount.parser;
+package gofabian.vertx.web.mount.invoker;
 
-import gofabian.vertx.web.mount.RouteInvokerImpl;
 import io.vertx.core.Future;
 import org.junit.Test;
 

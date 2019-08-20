@@ -1,7 +1,6 @@
-package gofabian.vertx.web.mount.parser;
+package gofabian.vertx.web.mount.jaxrs;
 
 import gofabian.vertx.web.mount.MountOptions;
-import gofabian.vertx.web.mount.jaxrs.JaxrsParser;
 import gofabian.vertx.web.mount.definition.ParamCategory;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
