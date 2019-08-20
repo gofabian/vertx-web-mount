@@ -1,6 +1,6 @@
 package gofabian.vertx.web.mount.parser;
 
-import gofabian.vertx.web.mount.RouteDefinitionInvokerImpl;
+import gofabian.vertx.web.mount.RouteInvokerImpl;
 import io.vertx.core.Future;
 import org.junit.Test;
 
@@ -8,9 +8,9 @@ import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertEquals;
 
-public class RouteDefinitionInvokerImplTest {
+public class RouteInvokerImplTest {
 
-    private RouteDefinitionInvokerImpl invoker = new RouteDefinitionInvokerImpl();
+    private RouteInvokerImpl invoker = new RouteInvokerImpl();
 
     @Test
     public void noFutureReturnType() throws Exception {

@@ -19,7 +19,7 @@ import java.util.Objects;
 public class VertxWebMounter {
 
     private RouteDefinitionFactory routeDefinitionFactory = new RouteDefinitionFactoryImpl();
-    private RouteDefinitionInvoker routeDefinitionInvoker = new RouteDefinitionInvokerImpl();
+    private RouteInvoker routeInvoker = new RouteInvokerImpl();
 
     private final ClassAccessList<RequestReader> requestReaders;
     private final ClassAccessList<ResponseWriter> responseWriters;
@@ -74,9 +74,9 @@ public class VertxWebMounter {
         return this;
     }
 
-    public VertxWebMounter setRouteDefinitionInvoker(RouteDefinitionInvoker routeDefinitionInvoker) {
-        Objects.requireNonNull(routeDefinitionInvoker);
-        this.routeDefinitionInvoker = routeDefinitionInvoker;
+    public VertxWebMounter setRouteInvoker(RouteInvoker routeInvoker) {
+        Objects.requireNonNull(routeInvoker);
+        this.routeInvoker = routeInvoker;
         return this;
     }
 
@@ -150,7 +150,7 @@ public class VertxWebMounter {
 
         ResponseWriter compositeResponseWriter = new CompositeResponseWriter(responseWriters.getList());
 
-        RouteDefinitionMounter routeDefinitionMounter = new RouteDefinitionMounter(routeDefinitionInvoker,
+        RouteMounter routeMounter = new RouteMounter(routeInvoker,
                 compositeResponseWriter, paramProviderFactories.getList(), routeConfigurators.getList(), options);
 
         RouteParser compositeRouteParser = new CompositeRouteParser(routeParsers.getList());
@@ -163,7 +163,7 @@ public class VertxWebMounter {
                 throw new IllegalArgumentException("Given api instance has no route definitions: " + apiDefinition);
             }
 
-            routeDefinitions.forEach(routeDefinition -> routeDefinitionMounter.mountRoute(router, apiDefinition, routeDefinition));
+            routeDefinitions.forEach(routeDefinition -> routeMounter.mountRoute(router, apiDefinition, routeDefinition));
         }
     }
 

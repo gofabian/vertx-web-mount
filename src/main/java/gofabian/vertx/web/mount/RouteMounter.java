@@ -18,22 +18,22 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class RouteDefinitionMounter {
+public class RouteMounter {
 
     private static final Logger log = LogManager.getLogger();
 
-    private final RouteDefinitionInvoker routeDefinitionInvoker;
+    private final RouteInvoker routeInvoker;
     private final List<ParamProviderFactory> parameterProviderFactories;
     private final ResponseWriter responseWriter;
     private final List<RouteConfigurator> routeConfigurators;
     private final MountOptions options;
 
-    public RouteDefinitionMounter(RouteDefinitionInvoker routeDefinitionInvoker,
-                                  ResponseWriter responseWriter,
-                                  List<ParamProviderFactory> parameterProviderFactories,
-                                  List<RouteConfigurator> routeConfigurators,
-                                  MountOptions options) {
-        this.routeDefinitionInvoker = routeDefinitionInvoker;
+    public RouteMounter(RouteInvoker routeInvoker,
+                        ResponseWriter responseWriter,
+                        List<ParamProviderFactory> parameterProviderFactories,
+                        List<RouteConfigurator> routeConfigurators,
+                        MountOptions options) {
+        this.routeInvoker = routeInvoker;
         this.parameterProviderFactories = parameterProviderFactories;
         this.responseWriter = responseWriter;
         this.routeConfigurators = routeConfigurators;
@@ -86,7 +86,7 @@ public class RouteDefinitionMounter {
                 .map(p -> p.provide(context))
                 .toArray();
 
-        routeDefinitionInvoker.invoke(apiDefinition, method, args)
+        routeInvoker.invoke(apiDefinition, method, args)
                 .map(result -> {
                     handleResult(context, result);
                     return null;

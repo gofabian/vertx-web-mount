@@ -5,7 +5,7 @@ import io.vertx.core.Future;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class RouteDefinitionInvokerImpl implements RouteDefinitionInvoker {
+public class RouteInvokerImpl implements RouteInvoker {
     @Override
     public Future<?> invoke(Object apiDefinition, Method method, Object[] args) throws Exception {
         Object result;
