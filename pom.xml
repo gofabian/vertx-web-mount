@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.gofabian</groupId>
@@ -28,8 +29,8 @@
         <connection>scm:git:git@github.com:gofabian/vertx-web-mount.git</connection>
         <developerConnection>scm:git:git@github.com:gofabian/vertx-web-mount.git</developerConnection>
         <url>http://github.com/gofabian/vertx-web-mount/tree/master</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -63,6 +64,19 @@
             <artifactId>javax.ws.rs-api</artifactId>
             <version>${version.jaxrs}</version>
         </dependency>
+
+        <!-- http://hibernate.org/validator/documentation/getting-started/ -->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.0.17.Final</version>
+            <scope>provided</scope>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.glassfish</groupId>-->
+<!--            <artifactId>javax.el</artifactId>-->
+<!--            <version>3.0.1-b09</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>junit</groupId>
