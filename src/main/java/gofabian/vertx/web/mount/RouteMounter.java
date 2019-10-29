@@ -101,15 +101,13 @@ public class RouteMounter {
                 .map(p -> p.provide(context))
                 .toArray();
 
-        routeInvoker.invoke(apiDefinition, method, args)
-                .map(result -> {
-                    handleResult(context, result);
-                    return null;
-                })
-                .otherwise(e -> {
-                    context.fail(e);
-                    return null;
-                });
+        routeInvoker.invoke(apiDefinition, method, args).setHandler(ar -> {
+            if (ar.failed()) {
+                context.fail(ar.cause());
+            } else {
+                handleResult(context, ar.result());
+            }
+        });
     }
 
     private void handleResult(RoutingContext context, Object result) {

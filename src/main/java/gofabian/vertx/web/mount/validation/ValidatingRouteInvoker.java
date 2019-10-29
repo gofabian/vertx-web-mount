@@ -1,7 +1,6 @@
 package gofabian.vertx.web.mount.validation;
 
 import gofabian.vertx.web.mount.invoker.RouteInvoker;
-import gofabian.vertx.web.mount.invoker.RouteInvokerImpl;
 import io.vertx.core.Future;
 
 import javax.validation.ConstraintViolation;
@@ -15,10 +14,6 @@ public class ValidatingRouteInvoker implements RouteInvoker {
 
     private final RouteInvoker routeInvoker;
     private final ExecutableValidator validator;
-
-    public ValidatingRouteInvoker(Validator validator) {
-        this(new RouteInvokerImpl(), validator);
-    }
 
     public ValidatingRouteInvoker(RouteInvoker routeInvoker, Validator validator) {
         this.routeInvoker = routeInvoker;
