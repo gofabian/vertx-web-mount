@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class VertxWebMounter {
+public class RouterBuilder {
 
     private RouteDefinitionFactory routeDefinitionFactory = new RouteDefinitionFactoryImpl();
     private RouteInvoker routeInvoker = new RouteInvokerImpl();
@@ -38,7 +38,7 @@ public class VertxWebMounter {
     private MountOptions options = new MountOptions();
     private Validator validator;
 
-    public VertxWebMounter() {
+    public RouterBuilder() {
         requestReaders = new ClassAccessList<>(Arrays.asList(
                 new JsonRequestReader(),
                 new BufferRequestReader(),
@@ -75,19 +75,19 @@ public class VertxWebMounter {
         ));
     }
 
-    public VertxWebMounter setRouteDefinitionFactory(RouteDefinitionFactory routeDefinitionFactory) {
+    public RouterBuilder setRouteDefinitionFactory(RouteDefinitionFactory routeDefinitionFactory) {
         Objects.requireNonNull(routeDefinitionFactory);
         this.routeDefinitionFactory = routeDefinitionFactory;
         return this;
     }
 
-    public VertxWebMounter setRouteInvoker(RouteInvoker routeInvoker) {
+    public RouterBuilder setRouteInvoker(RouteInvoker routeInvoker) {
         Objects.requireNonNull(routeInvoker);
         this.routeInvoker = routeInvoker;
         return this;
     }
 
-    public VertxWebMounter addRequestReader(RequestReader requestReader) {
+    public RouterBuilder addRequestReader(RequestReader requestReader) {
         Objects.requireNonNull(requestReader);
         requestReaders.addFirst(requestReader);
         return this;
@@ -97,7 +97,7 @@ public class VertxWebMounter {
         return requestReaders;
     }
 
-    public VertxWebMounter addResponseWriter(ResponseWriter responseWriter) {
+    public RouterBuilder addResponseWriter(ResponseWriter responseWriter) {
         Objects.requireNonNull(responseWriter);
         responseWriters.addFirst(responseWriter);
         return this;
@@ -107,7 +107,7 @@ public class VertxWebMounter {
         return responseWriters;
     }
 
-    public VertxWebMounter addParamProviderFactory(ParamProviderFactory paramProviderFactory) {
+    public RouterBuilder addParamProviderFactory(ParamProviderFactory paramProviderFactory) {
         Objects.requireNonNull(paramProviderFactory);
         paramProviderFactories.addFirst(paramProviderFactory);
         return this;
@@ -117,7 +117,7 @@ public class VertxWebMounter {
         return paramProviderFactories;
     }
 
-    public VertxWebMounter addRouteParser(RouteParser routeParser) {
+    public RouterBuilder addRouteParser(RouteParser routeParser) {
         Objects.requireNonNull(routeParser);
         routeParsers.addFirst(routeParser);
         return this;
@@ -127,7 +127,7 @@ public class VertxWebMounter {
         return routeParsers;
     }
 
-    public VertxWebMounter addRouteHandler(Handler<RoutingContext> routeHandler) {
+    public RouterBuilder addRouteHandler(Handler<RoutingContext> routeHandler) {
         Objects.requireNonNull(routeHandler);
         routeHandlers.addFirst(routeHandler);
         return this;
@@ -137,7 +137,7 @@ public class VertxWebMounter {
         return routeHandlers;
     }
 
-    public VertxWebMounter addApiDefinition(Object apiDefinition) {
+    public RouterBuilder addApiDefinition(Object apiDefinition) {
         Objects.requireNonNull(apiDefinition);
         this.apiDefinitions.add(apiDefinition);
         return this;
@@ -157,7 +157,7 @@ public class VertxWebMounter {
         this.validator = validator;
     }
 
-    public Router mountRouter(Vertx vertx) {
+    public Router build(Vertx vertx) {
         Objects.requireNonNull(vertx);
 
         RouteInvoker finalInvoker = (validator == null) ? routeInvoker : new ValidatingRouteInvoker(routeInvoker, validator);

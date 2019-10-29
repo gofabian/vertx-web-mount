@@ -76,7 +76,7 @@ public class JaxRsIntegrationTest {
         vertx = Vertx.vertx();
         router.route().handler(LoggerHandler.create());
 
-        router = new VertxWebMounter().addApiDefinition(new JaxRsApi()).mountRouter(vertx);
+        router = new RouterBuilder().addApiDefinition(new JaxRsApi()).build(vertx);
 
         vertx.createHttpServer()
                 .requestHandler(router)

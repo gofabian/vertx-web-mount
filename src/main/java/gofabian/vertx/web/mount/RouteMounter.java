@@ -37,7 +37,7 @@ public class RouteMounter {
         this.routeHandlers = routeHandlers;
     }
 
-    public Route mountRoute(Router router, Object apiDefinition, RouteDefinition routeDefinition) {
+    public void mountRoute(Router router, Object apiDefinition, RouteDefinition routeDefinition) {
         log.info("Mount route " + routeDefinition);
 
         Route route = router.route();
@@ -62,7 +62,6 @@ public class RouteMounter {
 
         Handler<RoutingContext> routeHandler = createRouteHandler(apiDefinition, routeDefinition);
         route.handler(routeHandler);
-        return route;
     }
 
     private Handler<RoutingContext> createRouteHandler(Object apiDefinition, RouteDefinition routeDefinition) {

@@ -70,7 +70,7 @@ public class SecurityIntegrationTest {
 
     @Test
     public void allowedAuthorities(TestContext context) {
-        Router subRouter = new VertxWebMounter().addApiDefinition(new AllowedAuthoritiesApi()).mountRouter(vertx);
+        Router subRouter = new RouterBuilder().addApiDefinition(new AllowedAuthoritiesApi()).build(vertx);
         router.mountSubRouter("/", subRouter);
 
         WebClient.create(vertx)
@@ -94,7 +94,7 @@ public class SecurityIntegrationTest {
 
     @Test
     public void requiredAuthorities(TestContext context) {
-        Router subRouter = new VertxWebMounter().addApiDefinition(new RequiredAuthoritiesApi()).mountRouter(vertx);
+        Router subRouter = new RouterBuilder().addApiDefinition(new RequiredAuthoritiesApi()).build(vertx);
         router.mountSubRouter("/", subRouter);
 
         WebClient.create(vertx)
@@ -118,7 +118,7 @@ public class SecurityIntegrationTest {
 
     @Test
     public void authenticated(TestContext context) {
-        Router subRouter = new VertxWebMounter().addApiDefinition(new AuthenticatedApi()).mountRouter(vertx);
+        Router subRouter = new RouterBuilder().addApiDefinition(new AuthenticatedApi()).build(vertx);
         router.mountSubRouter("/", subRouter);
 
         WebClient.create(vertx)
