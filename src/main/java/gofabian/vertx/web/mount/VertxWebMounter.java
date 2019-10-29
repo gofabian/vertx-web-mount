@@ -1,6 +1,5 @@
 package gofabian.vertx.web.mount;
 
-import gofabian.vertx.web.mount.configurator.*;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import gofabian.vertx.web.mount.invoker.RouteInvoker;
 import gofabian.vertx.web.mount.invoker.RouteInvokerImpl;
@@ -9,9 +8,13 @@ import gofabian.vertx.web.mount.param.*;
 import gofabian.vertx.web.mount.parser.*;
 import gofabian.vertx.web.mount.request.*;
 import gofabian.vertx.web.mount.response.*;
-import gofabian.vertx.web.mount.security.SecurityConfigurator;
 import gofabian.vertx.web.mount.security.SecurityParser;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.ResponseContentTypeHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +30,7 @@ public class VertxWebMounter {
     private final ClassAccessList<ResponseWriter> responseWriters;
     private final ClassAccessList<ParamProviderFactory> paramProviderFactories;
     private final ClassAccessList<RouteParser> routeParsers;
-    private final ClassAccessList<RouteConfigurator> routeConfigurators;
+    private final ClassAccessList<Handler<RoutingContext>> routeHandlers;
 
     private final List<Object> apiDefinitions = new ArrayList<>();
     private MountOptions options = new MountOptions();
@@ -59,14 +62,13 @@ public class VertxWebMounter {
         routeParsers = new ClassAccessList<>(Arrays.asList(
                 new ReturnTypeParser(),
                 new JaxrsParser(),
-                new SecurityParser()
+                new SecurityParser(),
+                new HandleParser()
         ));
-        routeConfigurators = new ClassAccessList<>(Arrays.asList(
-                new RouteAttributesConfigurator(),
-                new BodyHandlerConfigurator(),
-                new SecurityConfigurator(),
-                new NegotiationConfigurator(),
-                new NoContentConfigurator()
+        routeHandlers = new ClassAccessList<>(Arrays.asList(
+                BodyHandler.create(),
+                ResponseContentTypeHandler.create(),
+                new NoContentHandler()
         ));
     }
 
@@ -122,14 +124,14 @@ public class VertxWebMounter {
         return routeParsers;
     }
 
-    public VertxWebMounter addRouteConfigurator(RouteConfigurator routeConfigurator) {
-        Objects.requireNonNull(routeConfigurator);
-        routeConfigurators.addFirst(routeConfigurator);
+    public VertxWebMounter addRouteHandler(Handler<RoutingContext> routeHandler) {
+        Objects.requireNonNull(routeHandler);
+        routeHandlers.addFirst(routeHandler);
         return this;
     }
 
-    public ClassAccessList<RouteConfigurator> getRouteConfigurators() {
-        return routeConfigurators;
+    public ClassAccessList<Handler<RoutingContext>> getRouteHandlers() {
+        return routeHandlers;
     }
 
     public VertxWebMounter addApiDefinition(Object apiDefinition) {
@@ -147,19 +149,20 @@ public class VertxWebMounter {
         return options;
     }
 
-    public void mount(Router router) {
-        Objects.requireNonNull(router);
+    public Router mountRouter(Vertx vertx) {
+        Objects.requireNonNull(vertx);
+        Router router = Router.router(vertx);
 
         ResponseWriter compositeResponseWriter = new CompositeResponseWriter(responseWriters.getList());
 
-        RouteMounter routeMounter = new RouteMounter(routeInvoker,
-                compositeResponseWriter, paramProviderFactories.getList(), routeConfigurators.getList(), options);
+        RouteMounter routeMounter = new RouteMounter(routeInvoker, compositeResponseWriter,
+                paramProviderFactories.getList(), routeHandlers.getList());
 
         RouteParser compositeRouteParser = new CompositeRouteParser(routeParsers.getList());
 
         for (Object apiDefinition : apiDefinitions) {
-            List<RouteDefinition> routeDefinitions = routeDefinitionFactory.create(apiDefinition, compositeRouteParser,
-                    null);
+            List<RouteDefinition> routeDefinitions = routeDefinitionFactory.create(apiDefinition,
+                    compositeRouteParser, options);
 
             if (routeDefinitions.isEmpty()) {
                 throw new IllegalArgumentException("Given api instance has no route definitions: " + apiDefinition);
@@ -167,6 +170,8 @@ public class VertxWebMounter {
 
             routeDefinitions.forEach(routeDefinition -> routeMounter.mountRoute(router, apiDefinition, routeDefinition));
         }
+
+        return router;
     }
 
 }

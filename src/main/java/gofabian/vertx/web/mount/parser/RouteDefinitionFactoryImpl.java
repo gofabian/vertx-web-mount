@@ -26,7 +26,7 @@ public class RouteDefinitionFactoryImpl implements RouteDefinitionFactory {
             }
 
             RouteDefinition methodDefinition = parseMethod(method, parser, options);
-            RouteDefinition routeDefinition = mergeDefinitions(classDefinition, methodDefinition, parser);
+            RouteDefinition routeDefinition = mergeDefinitions(classDefinition, methodDefinition, parser, options);
 
             if (isValidRouteDefinition(routeDefinition)) {
                 routeDefinitions.add(routeDefinition);
@@ -88,9 +88,9 @@ public class RouteDefinitionFactoryImpl implements RouteDefinitionFactory {
     }
 
     protected RouteDefinition mergeDefinitions(RouteDefinition parentDefinition, RouteDefinition childDefinition,
-                                               RouteParser parser) {
+                                               RouteParser parser, MountOptions options) {
         RouteDefinition routeDefinition = new RouteDefinition().setContext(childDefinition.getContext());
-        parser.merge(parentDefinition, childDefinition, routeDefinition);
+        parser.merge(parentDefinition, childDefinition, routeDefinition, options);
         return routeDefinition;
     }
 

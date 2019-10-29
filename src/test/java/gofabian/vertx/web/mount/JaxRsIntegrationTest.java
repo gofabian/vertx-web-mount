@@ -22,6 +22,7 @@ import javax.ws.rs.Produces;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(VertxUnitRunner.class)
+@SuppressWarnings("BeforeOrAfterWithIncorrectSignature")
 public class JaxRsIntegrationTest {
 
     public static class Entity {
@@ -73,10 +74,9 @@ public class JaxRsIntegrationTest {
     @Before
     public void before(TestContext context) {
         vertx = Vertx.vertx();
-        router = Router.router(vertx);
         router.route().handler(LoggerHandler.create());
 
-        new VertxWebMounter().addApiDefinition(new JaxRsApi()).mount(router);
+        router = new VertxWebMounter().addApiDefinition(new JaxRsApi()).mountRouter(vertx);
 
         vertx.createHttpServer()
                 .requestHandler(router)

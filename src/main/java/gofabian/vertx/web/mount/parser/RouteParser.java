@@ -13,7 +13,7 @@ public interface RouteParser {
 
     void visitMethod(Method method, RouteDefinition routeDefinition, MountOptions options);
 
-    void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result);
+    void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result, MountOptions options);
 
     void visitParameter(Parameter parameter, ParamDefinition paramDefinition, MountOptions options);
 

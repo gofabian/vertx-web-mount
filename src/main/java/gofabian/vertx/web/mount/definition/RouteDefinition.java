@@ -1,11 +1,11 @@
 package gofabian.vertx.web.mount.definition;
 
+import io.vertx.core.Handler;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.web.RoutingContext;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class RouteDefinition {
 
@@ -17,10 +17,9 @@ public class RouteDefinition {
     private List<String> produces = new ArrayList<>();
     private List<ParamDefinition> params = new ArrayList<>();
     private Type responseType;
+    private List<Handler<RoutingContext>> routeHandlers = new ArrayList<>();
 
-    private Boolean isAuthenticationRequired;
-    private List<String> allowedAuthorities = new ArrayList<>();
-    private List<String> requiredAuthorities = new ArrayList<>();
+    private final Map<String, Object> attributes = new HashMap<>();
 
     public Object getContext() {
         return context;
@@ -98,30 +97,26 @@ public class RouteDefinition {
         return this;
     }
 
-    public Boolean isAuthenticationRequired() {
-        return isAuthenticationRequired;
+    public List<Handler<RoutingContext>> getRouteHandlers() {
+        return routeHandlers;
     }
 
-    public RouteDefinition setAuthenticationRequired(Boolean authenticationRequired) {
-        isAuthenticationRequired = authenticationRequired;
+    public RouteDefinition setRouteHandlers(List<Handler<RoutingContext>> routeHandlers) {
+        this.routeHandlers = Objects.requireNonNull(routeHandlers);
         return this;
     }
 
-    public List<String> getAllowedAuthorities() {
-        return allowedAuthorities;
+    public Map<String, Object> getAttributes() {
+        return attributes;
     }
 
-    public RouteDefinition setAllowedAuthorities(List<String> allowedAuthorities) {
-        this.allowedAuthorities = allowedAuthorities;
-        return this;
+    @SuppressWarnings("unchecked")
+    public <T> T getAttribute(String name) {
+        return (T) attributes.get(name);
     }
 
-    public List<String> getRequiredAuthorities() {
-        return requiredAuthorities;
-    }
-
-    public RouteDefinition setRequiredAuthorities(List<String> requiredAuthorities) {
-        this.requiredAuthorities = requiredAuthorities;
+    public RouteDefinition putAttribute(String name, Object attribute) {
+        attributes.put(name, attribute);
         return this;
     }
 
@@ -135,9 +130,8 @@ public class RouteDefinition {
                 ", produces=" + produces +
                 ", params=" + params +
                 ", responseType=" + responseType +
-                ", isAuthenticationRequired=" + isAuthenticationRequired +
-                ", allowedAuthorities=" + allowedAuthorities +
-                ", requiredAuthorities=" + requiredAuthorities +
+                ", routeHandlers=" + routeHandlers +
+                ", attributes=" + attributes +
                 '}';
     }
 }

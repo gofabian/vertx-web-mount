@@ -1,6 +1,5 @@
 package gofabian.vertx.web.mount;
 
-import gofabian.vertx.web.mount.configurator.RouteConfigurator;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import gofabian.vertx.web.mount.invoker.RouteInvoker;
@@ -26,29 +25,44 @@ public class RouteMounter {
     private final RouteInvoker routeInvoker;
     private final List<ParamProviderFactory> parameterProviderFactories;
     private final ResponseWriter responseWriter;
-    private final List<RouteConfigurator> routeConfigurators;
-    private final MountOptions options;
+    private final List<Handler<RoutingContext>> routeHandlers;
 
     public RouteMounter(RouteInvoker routeInvoker,
                         ResponseWriter responseWriter,
                         List<ParamProviderFactory> parameterProviderFactories,
-                        List<RouteConfigurator> routeConfigurators,
-                        MountOptions options) {
+                        List<Handler<RoutingContext>> routeHandlers) {
         this.routeInvoker = routeInvoker;
         this.parameterProviderFactories = parameterProviderFactories;
         this.responseWriter = responseWriter;
-        this.routeConfigurators = routeConfigurators;
-        this.options = options;
+        this.routeHandlers = routeHandlers;
     }
 
     public Route mountRoute(Router router, Object apiDefinition, RouteDefinition routeDefinition) {
         log.info("Mount route " + routeDefinition);
 
-        Route vertxRoute = router.route();
-        routeConfigurators.forEach(configurator -> configurator.configure(routeDefinition, vertxRoute, options));
+        Route route = router.route();
+        route.path(routeDefinition.getPath());
+        routeDefinition.getMethods().forEach(route::method);
+        routeDefinition.getConsumes().forEach(route::consumes);
+        routeDefinition.getProduces().forEach(route::produces);
+        routeHandlers.forEach(route::handler);
+
+        // set acceptable content-type fallback
+        if (!routeDefinition.getProduces().isEmpty()) {
+            String fallbackContentType = routeDefinition.getProduces().get(0);
+            route.handler(context -> {
+                if (context.getAcceptableContentType() == null) {
+                    context.setAcceptableContentType(fallbackContentType);
+                }
+                context.next();
+            });
+        }
+
+        routeDefinition.getRouteHandlers().forEach(route::handler);
+
         Handler<RoutingContext> routeHandler = createRouteHandler(apiDefinition, routeDefinition);
-        vertxRoute.handler(routeHandler);
-        return vertxRoute;
+        route.handler(routeHandler);
+        return route;
     }
 
     private Handler<RoutingContext> createRouteHandler(Object apiDefinition, RouteDefinition routeDefinition) {

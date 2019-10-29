@@ -7,9 +7,6 @@ public class ClassAccessList<T> {
 
     private final LinkedList<T> list = new LinkedList<>();
 
-    public ClassAccessList() {
-    }
-
     public ClassAccessList(List<T> list) {
         this.list.addAll(list);
     }

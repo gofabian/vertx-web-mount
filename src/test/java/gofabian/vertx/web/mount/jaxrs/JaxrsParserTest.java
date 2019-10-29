@@ -76,7 +76,7 @@ public class JaxrsParserTest {
                 .setConsumes(Arrays.asList("text/json"));
 
         RouteDefinition routeDefinition = new RouteDefinition();
-        parser.merge(classDefinition, methodDefinition, routeDefinition);
+        parser.merge(classDefinition, methodDefinition, routeDefinition, options);
 
         assertEquals(Arrays.asList(HttpMethod.DELETE), routeDefinition.getMethods());
         assertEquals("/foo/bar", routeDefinition.getPath());
@@ -94,7 +94,7 @@ public class JaxrsParserTest {
                 .setMethods(Arrays.asList(HttpMethod.DELETE));
 
         RouteDefinition routeDefinition = new RouteDefinition();
-        parser.merge(classDefinition, methodDefinition, routeDefinition);
+        parser.merge(classDefinition, methodDefinition, routeDefinition, options);
 
         assertEquals(Arrays.asList(HttpMethod.DELETE), routeDefinition.getMethods());
         assertEquals("/foo", routeDefinition.getPath());
@@ -112,7 +112,7 @@ public class JaxrsParserTest {
                 .setConsumes(Arrays.asList("text/json"));
 
         RouteDefinition routeDefinition = new RouteDefinition();
-        parser.merge(classDefinition, methodDefinition, routeDefinition);
+        parser.merge(classDefinition, methodDefinition, routeDefinition, options);
 
         assertEquals(Arrays.asList(HttpMethod.DELETE), routeDefinition.getMethods());
         assertEquals("/bar", routeDefinition.getPath());

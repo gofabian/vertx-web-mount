@@ -1,10 +1,10 @@
 package gofabian.vertx.web.mount.jaxrs;
 
+import gofabian.vertx.web.mount.MountOptions;
 import gofabian.vertx.web.mount.definition.ParamCategory;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import gofabian.vertx.web.mount.parser.ParseHelper;
-import gofabian.vertx.web.mount.MountOptions;
 import gofabian.vertx.web.mount.parser.RouteParser;
 import io.vertx.core.http.HttpMethod;
 
@@ -67,7 +67,7 @@ public class JaxrsParser implements RouteParser {
     }
 
     @Override
-    public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result) {
+    public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result, MountOptions options) {
         result.setContext(child.getContext());
         result.setMethods(child.getMethods());
         result.setPath(ParseHelper.combinePath(parent.getPath(), child.getPath()));

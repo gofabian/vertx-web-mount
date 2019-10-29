@@ -27,7 +27,7 @@ public class ReturnTypeParser implements RouteParser {
     }
 
     @Override
-    public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result) {
+    public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result, MountOptions options) {
         result.setResponseType(child.getResponseType());
     }
 

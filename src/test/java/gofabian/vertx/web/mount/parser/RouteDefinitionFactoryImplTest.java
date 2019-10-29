@@ -69,7 +69,7 @@ public class RouteDefinitionFactoryImplTest {
         }
 
         @Override
-        public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result) {
+        public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result, MountOptions options) {
             result.setPath(parent.getPath() + child.getPath());
             result.setMethods(child.getMethods());
             result.setParams(child.getParams());

@@ -10,8 +10,14 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class SecurityParser implements RouteParser {
+
+    static final String KEY_IS_AUTHENTICATION_REQUIRED = "is_authentication_required";
+    static final String KEY_ALLOWED_AUTHORITIES = "allowed_authorities";
+    static final String KEY_REQUIRED_AUTHORITIES = "requiredAuthorities";
+
     @Override
     public void visitClass(Class<?> clazz, RouteDefinition routeDefinition, MountOptions options) {
         visitAnnotations(clazz, routeDefinition);
@@ -23,45 +29,55 @@ public class SecurityParser implements RouteParser {
     }
 
     private void visitAnnotations(AnnotatedElement annotatedElement, RouteDefinition routeDefinition) {
+        Map<String, Object> attributes = routeDefinition.getAttributes();
+
         if (annotatedElement.isAnnotationPresent(Authenticated.class)) {
-            routeDefinition.setAuthenticationRequired(Boolean.TRUE);
+            attributes.put(KEY_IS_AUTHENTICATION_REQUIRED, true);
         }
         if (annotatedElement.isAnnotationPresent(NotAuthenticated.class)) {
-            routeDefinition.setAuthenticationRequired(Boolean.FALSE);
+            attributes.put(KEY_IS_AUTHENTICATION_REQUIRED, false);
         }
 
         AuthoritiesAllowed authoritiesAllowed = annotatedElement.getAnnotation(AuthoritiesAllowed.class);
         if (authoritiesAllowed != null) {
-            List<String> list = Arrays.asList(authoritiesAllowed.value());
-            routeDefinition.getAllowedAuthorities().addAll(list);
+            attributes.put(KEY_ALLOWED_AUTHORITIES, Arrays.asList(authoritiesAllowed.value()));
         }
 
         AuthoritiesRequired authoritiesRequired = annotatedElement.getAnnotation(AuthoritiesRequired.class);
         if (authoritiesRequired != null) {
-            List<String> list = Arrays.asList(authoritiesRequired.value());
-            routeDefinition.getRequiredAuthorities().addAll(list);
+            attributes.put(KEY_REQUIRED_AUTHORITIES, Arrays.asList(authoritiesRequired.value()));
         }
     }
 
     @Override
-    public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result) {
-        if (child.isAuthenticationRequired() == null) {
-            result.setAuthenticationRequired(parent.isAuthenticationRequired());
-        } else {
-            result.setAuthenticationRequired(child.isAuthenticationRequired());
+    public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result, MountOptions options) {
+        Boolean isAuthenticationRequired = mergeAttribute(KEY_IS_AUTHENTICATION_REQUIRED, parent, child);
+        if (isAuthenticationRequired == null) {
+            isAuthenticationRequired = options.isAuthenticationRequired();
+        }
+        if (isAuthenticationRequired) {
+            result.getRouteHandlers().add(new AuthenticationRequiredHandler());
         }
 
-        if (child.getAllowedAuthorities().isEmpty()) {
-            result.getAllowedAuthorities().addAll(parent.getAllowedAuthorities());
-        } else {
-            result.getAllowedAuthorities().addAll(child.getAllowedAuthorities());
+        List<String> allowedAuthorities = mergeAttribute(KEY_ALLOWED_AUTHORITIES, parent, child);
+        if (allowedAuthorities != null && !allowedAuthorities.isEmpty()) {
+            result.getRouteHandlers().add(new AllowedAuthoritiesHandler(allowedAuthorities));
         }
 
-        if (child.getRequiredAuthorities().isEmpty()) {
-            result.getRequiredAuthorities().addAll(parent.getRequiredAuthorities());
-        } else {
-            result.getRequiredAuthorities().addAll(child.getRequiredAuthorities());
+        List<String> requiredAuthorities = mergeAttribute(KEY_REQUIRED_AUTHORITIES, parent, child);
+        if (requiredAuthorities != null && !requiredAuthorities.isEmpty()) {
+            result.getRouteHandlers().add(new RequiredAuthoritiesHandler(requiredAuthorities));
         }
+    }
+
+    private <T> T mergeAttribute(String name, RouteDefinition parent, RouteDefinition child) {
+        if (child.getAttributes().containsKey(name)) {
+            return child.getAttribute(name);
+        }
+        if (parent.getAttributes().containsKey(name)) {
+            return parent.getAttribute(name);
+        }
+        return null;
     }
 
     @Override

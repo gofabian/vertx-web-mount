@@ -32,8 +32,8 @@ public class CompositeRouteParser implements RouteParser {
     }
 
     @Override
-    public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result) {
-        parsers.forEach(p -> p.merge(parent, child, result));
+    public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result, MountOptions options) {
+        parsers.forEach(p -> p.merge(parent, child, result, options));
     }
 
 }

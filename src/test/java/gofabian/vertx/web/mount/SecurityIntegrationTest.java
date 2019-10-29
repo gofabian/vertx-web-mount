@@ -26,6 +26,7 @@ import javax.ws.rs.Path;
 import java.util.List;
 
 @RunWith(VertxUnitRunner.class)
+@SuppressWarnings("BeforeOrAfterWithIncorrectSignature")
 public class SecurityIntegrationTest {
 
     private Vertx vertx = Vertx.vertx();
@@ -69,7 +70,8 @@ public class SecurityIntegrationTest {
 
     @Test
     public void allowedAuthorities(TestContext context) {
-        new VertxWebMounter().addApiDefinition(new AllowedAuthoritiesApi()).mount(router);
+        Router subRouter = new VertxWebMounter().addApiDefinition(new AllowedAuthoritiesApi()).mountRouter(vertx);
+        router.mountSubRouter("/", subRouter);
 
         WebClient.create(vertx)
                 .post(port, "127.0.0.1", "/?authority=role:user")
@@ -92,7 +94,8 @@ public class SecurityIntegrationTest {
 
     @Test
     public void requiredAuthorities(TestContext context) {
-        new VertxWebMounter().addApiDefinition(new RequiredAuthoritiesApi()).mount(router);
+        Router subRouter = new VertxWebMounter().addApiDefinition(new RequiredAuthoritiesApi()).mountRouter(vertx);
+        router.mountSubRouter("/", subRouter);
 
         WebClient.create(vertx)
                 .post(port, "127.0.0.1", "/?authority=right:read")
@@ -115,7 +118,8 @@ public class SecurityIntegrationTest {
 
     @Test
     public void authenticated(TestContext context) {
-        new VertxWebMounter().addApiDefinition(new AuthenticatedApi()).mount(router);
+        Router subRouter = new VertxWebMounter().addApiDefinition(new AuthenticatedApi()).mountRouter(vertx);
+        router.mountSubRouter("/", subRouter);
 
         WebClient.create(vertx)
                 .post(port, "127.0.0.1", "/?auth=yes")
@@ -158,3 +162,4 @@ public class SecurityIntegrationTest {
     }
 
 }
+
