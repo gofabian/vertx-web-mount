@@ -18,6 +18,7 @@ public class RouteDefinition {
     private List<ParamDefinition> params = new ArrayList<>();
     private Type responseType;
     private List<Handler<RoutingContext>> routeHandlers = new ArrayList<>();
+    private List<Handler<RoutingContext>> failureHandlers = new ArrayList<>();
     private BlockingType blockingType;
 
     private final Map<String, Object> attributes = new HashMap<>();
@@ -105,6 +106,14 @@ public class RouteDefinition {
     public RouteDefinition setRouteHandlers(List<Handler<RoutingContext>> routeHandlers) {
         this.routeHandlers = Objects.requireNonNull(routeHandlers);
         return this;
+    }
+
+    public List<Handler<RoutingContext>> getFailureHandlers() {
+        return failureHandlers;
+    }
+
+    public void setFailureHandlers(List<Handler<RoutingContext>> failureHandlers) {
+        this.failureHandlers = failureHandlers;
     }
 
     public BlockingType getBlockingType() {

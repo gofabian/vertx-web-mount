@@ -58,6 +58,7 @@ public class RouteMounterTest {
     public void setUp(TestContext context) {
         vertx = Vertx.vertx();
         router = Router.router(vertx);
+        router.route().handler(BodyHandler.create());
 
         vertx.createHttpServer()
                 .requestHandler(router)
@@ -90,8 +91,7 @@ public class RouteMounterTest {
                 BodyHandler.create(),
                 ResponseContentTypeHandler.create()
         );
-        routeMounter = new RouteMounter(apiInvokerMock, responseWriter, paramProviderFactories,
-                routeHandlers);
+        routeMounter = new RouteMounter(apiInvokerMock, responseWriter, paramProviderFactories);
     }
 
     @After

@@ -2,6 +2,7 @@ package gofabian.vertx.web.mount.parser;
 
 import gofabian.vertx.web.mount.MountOptions;
 import gofabian.vertx.web.mount.annotation.Handle;
+import gofabian.vertx.web.mount.annotation.HandleFailure;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import io.vertx.core.Handler;
@@ -24,14 +25,21 @@ public class HandleParser implements RouteParser {
     }
 
     private void visitAnnotatedElement(AnnotatedElement element, RouteDefinition routeDefinition) {
-        Handle[] annotations = element.getAnnotationsByType(Handle.class);
-        for (Handle annotation : annotations) {
+        Handle[] handleAnnotations = element.getAnnotationsByType(Handle.class);
+        for (Handle annotation : handleAnnotations) {
             Class<? extends Handler<RoutingContext>> handlerClass = ((Handle) annotation).value();
             Handler<RoutingContext> handler = createInstance(handlerClass);
             if (annotation.blocking()) {
                 handler = new BlockingHandlerDecorator(handler, annotation.ordered());
             }
             routeDefinition.getRouteHandlers().add(handler);
+        }
+
+        HandleFailure[] handleFailureAnnotations = element.getAnnotationsByType(HandleFailure.class);
+        for (HandleFailure annotation : handleFailureAnnotations) {
+            Class<? extends Handler<RoutingContext>> handlerClass = ((HandleFailure) annotation).value();
+            Handler<RoutingContext> handler = createInstance(handlerClass);
+            routeDefinition.getFailureHandlers().add(handler);
         }
     }
 
@@ -47,6 +55,8 @@ public class HandleParser implements RouteParser {
     public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result, MountOptions options) {
         result.getRouteHandlers().addAll(parent.getRouteHandlers());
         result.getRouteHandlers().addAll(child.getRouteHandlers());
+        result.getFailureHandlers().addAll(parent.getFailureHandlers());
+        result.getFailureHandlers().addAll(child.getFailureHandlers());
     }
 
     @Override

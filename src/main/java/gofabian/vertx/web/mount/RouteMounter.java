@@ -26,16 +26,13 @@ public class RouteMounter {
     private final RouteInvoker routeInvoker;
     private final List<ParamProviderFactory> parameterProviderFactories;
     private final ResponseWriter responseWriter;
-    private final List<Handler<RoutingContext>> routeHandlers;
 
     public RouteMounter(RouteInvoker routeInvoker,
                         ResponseWriter responseWriter,
-                        List<ParamProviderFactory> parameterProviderFactories,
-                        List<Handler<RoutingContext>> routeHandlers) {
+                        List<ParamProviderFactory> parameterProviderFactories) {
         this.routeInvoker = routeInvoker;
         this.parameterProviderFactories = parameterProviderFactories;
         this.responseWriter = responseWriter;
-        this.routeHandlers = routeHandlers;
     }
 
     public void mountRoute(Router router, Object apiDefinition, RouteDefinition routeDefinition) {
@@ -46,7 +43,7 @@ public class RouteMounter {
         routeDefinition.getMethods().forEach(route::method);
         routeDefinition.getConsumes().forEach(route::consumes);
         routeDefinition.getProduces().forEach(route::produces);
-        routeHandlers.forEach(route::handler);
+        routeDefinition.getFailureHandlers().forEach(route::failureHandler);
 
         // set acceptable content-type fallback
         if (!routeDefinition.getProduces().isEmpty()) {
@@ -61,7 +58,7 @@ public class RouteMounter {
 
         routeDefinition.getRouteHandlers().forEach(route::handler);
         Handler<RoutingContext> routeHandler = createRouteHandler(apiDefinition, routeDefinition);
-        
+
         boolean ordered = routeDefinition.getBlockingType() == BlockingType.BLOCKING_ORDERED;
         if (ordered || routeDefinition.getBlockingType() == BlockingType.BLOCKING_UNORDERED) {
             route.blockingHandler(routeHandler, ordered);

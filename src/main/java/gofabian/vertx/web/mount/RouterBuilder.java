@@ -3,7 +3,6 @@ package gofabian.vertx.web.mount;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import gofabian.vertx.web.mount.invoker.RouteInvoker;
 import gofabian.vertx.web.mount.invoker.RouteInvokerImpl;
-import gofabian.vertx.web.mount.parser.JaxrsParser;
 import gofabian.vertx.web.mount.param.*;
 import gofabian.vertx.web.mount.parser.*;
 import gofabian.vertx.web.mount.request.*;
@@ -12,6 +11,7 @@ import gofabian.vertx.web.mount.security.SecurityParser;
 import gofabian.vertx.web.mount.validation.ValidatingRouteInvoker;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -164,10 +164,13 @@ public class RouterBuilder {
         RouteInvoker finalInvoker = (validator == null) ? routeInvoker : new ValidatingRouteInvoker(routeInvoker, validator);
         ResponseWriter compositeResponseWriter = new CompositeResponseWriter(responseWriters.getList());
         RouteMounter routeMounter = new RouteMounter(finalInvoker, compositeResponseWriter,
-                paramProviderFactories.getList(), routeHandlers.getList());
+                paramProviderFactories.getList());
         RouteParser compositeRouteParser = new CompositeRouteParser(routeParsers.getList());
 
         Router router = Router.router(vertx);
+        Route genericRoute = router.route();
+        routeHandlers.getList().forEach(genericRoute::handler);
+
         for (Object apiDefinition : apiDefinitions) {
             List<RouteDefinition> routeDefinitions = routeDefinitionFactory.create(apiDefinition, compositeRouteParser, options);
             if (routeDefinitions.isEmpty()) {
