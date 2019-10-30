@@ -59,7 +59,7 @@ public class RouterBuilder {
                 new HttpResponseParamProviderFactory(),
                 new UserParamProviderFactory(),
                 new PathParamProviderFactory(),
-                new QueryParamProviderFactory(),
+                new ListParamProviderFactory(),
                 new BodyParamProviderFactory(compositeRequestReader)
         ));
         routeParsers = new ClassAccessList<>(Arrays.asList(

@@ -102,11 +102,14 @@ public class JaxrsParser implements RouteParser {
             paramDefinition.setDefaultValue(null);
         }
 
-        if (category == ParamCategory.QUERY && paramDefinition.getDefaultValue() != null) {
+        if (category == ParamCategory.QUERY || category == ParamCategory.HEADER) {
+            // convert default value string to list
             List<String> values = new ArrayList<>();
-            String rawValues = (String) paramDefinition.getDefaultValue();
-            if (!rawValues.trim().equals("")) {
-                ParseHelper.splitByComma(rawValues, values);
+            if (paramDefinition.getDefaultValue() != null) {
+                String rawValues = (String) paramDefinition.getDefaultValue();
+                if (!rawValues.trim().equals("")) {
+                    ParseHelper.splitByComma(rawValues, values);
+                }
             }
             paramDefinition.setDefaultValue(values);
         }
@@ -133,6 +136,12 @@ public class JaxrsParser implements RouteParser {
         if (annotation instanceof QueryParam) {
             paramDefinition.setCategory(ParamCategory.QUERY);
             paramDefinition.setName(((QueryParam) annotation).value());
+            return;
+        }
+
+        if (annotation instanceof HeaderParam) {
+            paramDefinition.setCategory(ParamCategory.HEADER);
+            paramDefinition.setName(((HeaderParam) annotation).value());
         }
     }
 

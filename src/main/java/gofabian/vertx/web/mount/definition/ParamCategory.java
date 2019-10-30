@@ -4,5 +4,6 @@ public enum ParamCategory {
     CONTEXT,
     BODY,
     PATH,
-    QUERY
+    QUERY,
+    HEADER
 }
