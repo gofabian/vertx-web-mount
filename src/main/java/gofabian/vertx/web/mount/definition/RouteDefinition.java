@@ -18,6 +18,7 @@ public class RouteDefinition {
     private List<ParamDefinition> params = new ArrayList<>();
     private Type responseType;
     private List<Handler<RoutingContext>> routeHandlers = new ArrayList<>();
+    private BlockingType blockingType;
 
     private final Map<String, Object> attributes = new HashMap<>();
 
@@ -106,6 +107,15 @@ public class RouteDefinition {
         return this;
     }
 
+    public BlockingType getBlockingType() {
+        return blockingType;
+    }
+
+    public RouteDefinition setBlockingType(BlockingType blockingType) {
+        this.blockingType = blockingType;
+        return this;
+    }
+
     public Map<String, Object> getAttributes() {
         return attributes;
     }
@@ -131,6 +141,7 @@ public class RouteDefinition {
                 ", params=" + params +
                 ", responseType=" + responseType +
                 ", routeHandlers=" + routeHandlers +
+                ", blockingType=" + blockingType +
                 ", attributes=" + attributes +
                 '}';
     }

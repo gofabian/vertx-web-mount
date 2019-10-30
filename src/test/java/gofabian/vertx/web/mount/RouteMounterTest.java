@@ -76,7 +76,7 @@ public class RouteMounterTest {
                 new VertxParamProviderFactory(),
                 new RoutingContextParamProviderFactory(),
                 new PathParamProviderFactory(),
-                new QueryParamProviderFactory(),
+                new ListParamProviderFactory(),
                 new BodyParamProviderFactory(requestReader)
         );
         ResponseWriter responseWriter = new CompositeResponseWriter(Arrays.asList(

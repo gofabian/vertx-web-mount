@@ -1,5 +1,6 @@
 package gofabian.vertx.web.mount;
 
+import gofabian.vertx.web.mount.definition.BlockingType;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import gofabian.vertx.web.mount.invoker.RouteInvoker;
@@ -59,9 +60,14 @@ public class RouteMounter {
         }
 
         routeDefinition.getRouteHandlers().forEach(route::handler);
-
         Handler<RoutingContext> routeHandler = createRouteHandler(apiDefinition, routeDefinition);
-        route.handler(routeHandler);
+        
+        boolean ordered = routeDefinition.getBlockingType() == BlockingType.BLOCKING_ORDERED;
+        if (ordered || routeDefinition.getBlockingType() == BlockingType.BLOCKING_UNORDERED) {
+            route.blockingHandler(routeHandler, ordered);
+        } else {
+            route.handler(routeHandler);
+        }
     }
 
     private Handler<RoutingContext> createRouteHandler(Object apiDefinition, RouteDefinition routeDefinition) {

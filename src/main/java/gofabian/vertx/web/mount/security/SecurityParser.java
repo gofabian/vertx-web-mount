@@ -16,7 +16,7 @@ public class SecurityParser implements RouteParser {
 
     static final String KEY_IS_AUTHENTICATION_REQUIRED = "is_authentication_required";
     static final String KEY_ALLOWED_AUTHORITIES = "allowed_authorities";
-    static final String KEY_REQUIRED_AUTHORITIES = "requiredAuthorities";
+    static final String KEY_REQUIRED_AUTHORITIES = "required_authorities";
 
     @Override
     public void visitClass(Class<?> clazz, RouteDefinition routeDefinition, MountOptions options) {

@@ -66,7 +66,8 @@ public class RouterBuilder {
                 new ReturnTypeParser(),
                 new JaxrsParser(),
                 new SecurityParser(),
-                new HandleParser()
+                new HandleParser(),
+                new BlockingParser()
         ));
         routeHandlers = new ClassAccessList<>(Arrays.asList(
                 BodyHandler.create(),
