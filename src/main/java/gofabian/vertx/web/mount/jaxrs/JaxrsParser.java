@@ -102,7 +102,7 @@ public class JaxrsParser implements RouteParser {
             paramDefinition.setDefaultValue(null);
         }
 
-        if (category == ParamCategory.QUERY || category == ParamCategory.HEADER) {
+        if (category == ParamCategory.QUERY || category == ParamCategory.HEADER || category == ParamCategory.FORM) {
             // convert default value string to list
             List<String> values = new ArrayList<>();
             if (paramDefinition.getDefaultValue() != null) {
@@ -142,6 +142,12 @@ public class JaxrsParser implements RouteParser {
         if (annotation instanceof HeaderParam) {
             paramDefinition.setCategory(ParamCategory.HEADER);
             paramDefinition.setName(((HeaderParam) annotation).value());
+            return;
+        }
+
+        if (annotation instanceof FormParam) {
+            paramDefinition.setCategory(ParamCategory.FORM);
+            paramDefinition.setName(((FormParam) annotation).value());
         }
     }
 

@@ -18,7 +18,8 @@ public class ListParamProviderFactory implements ParamProviderFactory {
     @Override
     public boolean supports(ParamDefinition paramDefinition) {
         ParamCategory paramCategory = paramDefinition.getCategory();
-        if (paramCategory == ParamCategory.QUERY || paramCategory == ParamCategory.HEADER) {
+        if (paramCategory == ParamCategory.QUERY || paramCategory == ParamCategory.HEADER
+                || paramCategory == ParamCategory.FORM) {
             Type type = paramDefinition.getType();
 
             if (type instanceof Class) {
@@ -78,10 +79,18 @@ public class ListParamProviderFactory implements ParamProviderFactory {
 
     private List<String> getHeaderValuesFrom(RoutingContext context, ParamDefinition paramDefinition, List<String> defaultValues) {
         List<String> values;
-        if (paramDefinition.getCategory() == ParamCategory.QUERY) {
-            values = context.queryParam(paramDefinition.getName());
-        } else {
-            values = context.request().headers().getAll(paramDefinition.getName());
+        switch (paramDefinition.getCategory()) {
+            case QUERY:
+                values = context.queryParam(paramDefinition.getName());
+                break;
+            case HEADER:
+                values = context.request().headers().getAll(paramDefinition.getName());
+                break;
+            case FORM:
+                values = context.request().formAttributes().getAll(paramDefinition.getName());
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected category: " + paramDefinition.getCategory());
         }
 
         if (values.isEmpty()) {
