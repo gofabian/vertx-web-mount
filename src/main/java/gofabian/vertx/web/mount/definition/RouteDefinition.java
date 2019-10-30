@@ -20,6 +20,7 @@ public class RouteDefinition {
     private List<Handler<RoutingContext>> routeHandlers = new ArrayList<>();
     private List<Handler<RoutingContext>> failureHandlers = new ArrayList<>();
     private BlockingType blockingType;
+    private Integer order;
 
     private final Map<String, Object> attributes = new HashMap<>();
 
@@ -125,6 +126,14 @@ public class RouteDefinition {
         return this;
     }
 
+    public Integer getOrder() {
+        return order;
+    }
+
+    public void setOrder(Integer order) {
+        this.order = order;
+    }
+
     public Map<String, Object> getAttributes() {
         return attributes;
     }
@@ -150,7 +159,9 @@ public class RouteDefinition {
                 ", params=" + params +
                 ", responseType=" + responseType +
                 ", routeHandlers=" + routeHandlers +
+                ", failureHandlers=" + failureHandlers +
                 ", blockingType=" + blockingType +
+                ", order=" + order +
                 ", attributes=" + attributes +
                 '}';
     }

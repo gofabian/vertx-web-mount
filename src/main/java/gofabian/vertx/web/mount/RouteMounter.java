@@ -44,7 +44,10 @@ public class RouteMounter {
         routeDefinition.getConsumes().forEach(route::consumes);
         routeDefinition.getProduces().forEach(route::produces);
         routeDefinition.getFailureHandlers().forEach(route::failureHandler);
-
+        if (routeDefinition.getOrder() != null) {
+            route.order(routeDefinition.getOrder());
+        }
+        
         // set acceptable content-type fallback
         if (!routeDefinition.getProduces().isEmpty()) {
             String fallbackContentType = routeDefinition.getProduces().get(0);
