@@ -1,6 +1,7 @@
 package gofabian.vertx.web.mount.parser;
 
 import gofabian.vertx.web.mount.MountOptions;
+import gofabian.vertx.web.mount.annotation.Blocking;
 import gofabian.vertx.web.mount.definition.BlockingType;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;

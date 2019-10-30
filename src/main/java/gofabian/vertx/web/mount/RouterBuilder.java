@@ -3,7 +3,7 @@ package gofabian.vertx.web.mount;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import gofabian.vertx.web.mount.invoker.RouteInvoker;
 import gofabian.vertx.web.mount.invoker.RouteInvokerImpl;
-import gofabian.vertx.web.mount.jaxrs.JaxrsParser;
+import gofabian.vertx.web.mount.parser.JaxrsParser;
 import gofabian.vertx.web.mount.param.*;
 import gofabian.vertx.web.mount.parser.*;
 import gofabian.vertx.web.mount.request.*;

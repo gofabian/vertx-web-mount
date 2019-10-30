@@ -1,4 +1,4 @@
-package gofabian.vertx.web.mount.parser;
+package gofabian.vertx.web.mount.annotation;
 
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
@@ -11,4 +11,8 @@ import java.lang.annotation.*;
 @Documented
 public @interface Handle {
     Class<? extends Handler<RoutingContext>> value();
+
+    boolean blocking() default false;
+
+    boolean ordered() default true;
 }

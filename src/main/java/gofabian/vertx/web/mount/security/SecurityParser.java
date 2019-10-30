@@ -1,6 +1,10 @@
 package gofabian.vertx.web.mount.security;
 
 import gofabian.vertx.web.mount.MountOptions;
+import gofabian.vertx.web.mount.annotation.Authenticated;
+import gofabian.vertx.web.mount.annotation.AuthoritiesAllowed;
+import gofabian.vertx.web.mount.annotation.AuthoritiesRequired;
+import gofabian.vertx.web.mount.annotation.NotAuthenticated;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import gofabian.vertx.web.mount.parser.RouteParser;

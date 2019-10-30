@@ -1,8 +1,8 @@
 package gofabian.vertx.web.mount;
 
-import gofabian.vertx.web.mount.security.Authenticated;
-import gofabian.vertx.web.mount.security.AuthoritiesAllowed;
-import gofabian.vertx.web.mount.security.AuthoritiesRequired;
+import gofabian.vertx.web.mount.annotation.Authenticated;
+import gofabian.vertx.web.mount.annotation.AuthoritiesAllowed;
+import gofabian.vertx.web.mount.annotation.AuthoritiesRequired;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;

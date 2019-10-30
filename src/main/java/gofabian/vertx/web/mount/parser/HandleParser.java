@@ -1,10 +1,12 @@
 package gofabian.vertx.web.mount.parser;
 
 import gofabian.vertx.web.mount.MountOptions;
+import gofabian.vertx.web.mount.annotation.Handle;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.impl.BlockingHandlerDecorator;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -26,6 +28,9 @@ public class HandleParser implements RouteParser {
         for (Handle annotation : annotations) {
             Class<? extends Handler<RoutingContext>> handlerClass = ((Handle) annotation).value();
             Handler<RoutingContext> handler = createInstance(handlerClass);
+            if (annotation.blocking()) {
+                handler = new BlockingHandlerDecorator(handler, annotation.ordered());
+            }
             routeDefinition.getRouteHandlers().add(handler);
         }
     }

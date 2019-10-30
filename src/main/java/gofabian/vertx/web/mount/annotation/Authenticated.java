@@ -1,10 +1,9 @@
-package gofabian.vertx.web.mount.parser;
+package gofabian.vertx.web.mount.annotation;
 
 import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Documented
-public @interface HandleN {
-    Handle[] value();
+public @interface Authenticated {
 }

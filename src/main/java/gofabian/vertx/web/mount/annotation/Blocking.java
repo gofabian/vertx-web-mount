@@ -1,4 +1,4 @@
-package gofabian.vertx.web.mount.parser;
+package gofabian.vertx.web.mount.annotation;
 
 import java.lang.annotation.*;
 

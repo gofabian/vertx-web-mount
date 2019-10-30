@@ -1,9 +1,10 @@
-package gofabian.vertx.web.mount.jaxrs;
+package gofabian.vertx.web.mount.annotation;
 
 import gofabian.vertx.web.mount.MountOptions;
 import gofabian.vertx.web.mount.definition.ParamCategory;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
+import gofabian.vertx.web.mount.parser.JaxrsParser;
 import io.vertx.core.http.HttpMethod;
 import org.junit.Test;
 
