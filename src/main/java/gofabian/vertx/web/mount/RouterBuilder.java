@@ -66,7 +66,7 @@ public class RouterBuilder {
                 new ReturnTypeParser(),
                 new JaxRsParser(),
                 new SecurityParser(),
-                new HandleParser(),
+                new HandleParser(new RouteHandlerFactoryImpl()),
                 new BlockingParser(),
                 new OrderParser(),
                 new DisabledParser()

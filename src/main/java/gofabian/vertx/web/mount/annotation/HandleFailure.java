@@ -10,5 +10,7 @@ import java.lang.annotation.*;
 @Repeatable(HandleFailureN.class)
 @Documented
 public @interface HandleFailure {
-    Class<? extends Handler<RoutingContext>> value();
+    Class<? extends Handler<RoutingContext>> value() default Handle.NoHandler.class;
+
+    String name() default "";
 }

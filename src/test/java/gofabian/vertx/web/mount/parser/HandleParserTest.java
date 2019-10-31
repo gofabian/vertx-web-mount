@@ -13,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 
 public class HandleParserTest {
 
-    private RouteParser handleParser = new HandleParser();
+    private RouteParser handleParser = new HandleParser(new RouteHandlerFactoryImpl());
     private ParserTestUtil parserTestUtil = new ParserTestUtil(handleParser, new MountOptions());
 
     @Test

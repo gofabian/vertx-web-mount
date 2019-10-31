@@ -10,9 +10,14 @@ import java.lang.annotation.*;
 @Repeatable(HandleN.class)
 @Documented
 public @interface Handle {
-    Class<? extends Handler<RoutingContext>> value();
+    Class<? extends Handler<RoutingContext>> value() default NoHandler.class;
+
+    String name() default "";
 
     boolean blocking() default false;
 
     boolean ordered() default true;
+
+    interface NoHandler extends Handler<RoutingContext> {
+    }
 }

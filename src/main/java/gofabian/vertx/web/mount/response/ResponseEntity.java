@@ -4,8 +4,6 @@ import io.vertx.core.MultiMap;
 
 public class ResponseEntity<T> {
 
-    // todo: add content type?
-
     private final int status;
     private final Object body;
     private final MultiMap headers = MultiMap.caseInsensitiveMultiMap();
@@ -19,7 +17,7 @@ public class ResponseEntity<T> {
         return new ResponseEntity<>(status, body);
     }
 
-    public static <T> ResponseEntity<T> error(int status, Object body) {
+    public static <T> ResponseEntity<T> failure(int status, Object body) {
         return new ResponseEntity<>(status, body);
     }
 
@@ -40,23 +38,23 @@ public class ResponseEntity<T> {
     }
 
     public static <T> ResponseEntity<T> badRequest(Object body) {
-        return error(400, body);
+        return failure(400, body);
     }
 
     public static <T> ResponseEntity<T> unauthorized(Object body) {
-        return error(401, body);
+        return failure(401, body);
     }
 
     public static <T> ResponseEntity<T> forbidden(Object body) {
-        return error(403, body);
+        return failure(403, body);
     }
 
     public static <T> ResponseEntity<T> notFound(Object body) {
-        return error(404, body);
+        return failure(404, body);
     }
 
     public static <T> ResponseEntity<T> serverError(Object body) {
-        return error(500, body);
+        return failure(500, body);
     }
 
     public ResponseEntity<T> addHeader(String name, String value) {

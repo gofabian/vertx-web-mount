@@ -14,6 +14,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 public class HandleParser implements RouteParser {
+
+    private final RouteHandlerFactory routeHandlerFactory;
+
+    public HandleParser(RouteHandlerFactory routeHandlerFactory) {
+        this.routeHandlerFactory = routeHandlerFactory;
+    }
+
     @Override
     public void visitClass(Class<?> clazz, RouteDefinition routeDefinition, MountOptions options) {
         visitAnnotatedElement(clazz, routeDefinition);
@@ -27,8 +34,16 @@ public class HandleParser implements RouteParser {
     private void visitAnnotatedElement(AnnotatedElement element, RouteDefinition routeDefinition) {
         Handle[] handleAnnotations = element.getAnnotationsByType(Handle.class);
         for (Handle annotation : handleAnnotations) {
-            Class<? extends Handler<RoutingContext>> handlerClass = ((Handle) annotation).value();
-            Handler<RoutingContext> handler = createInstance(handlerClass);
+            Class<? extends Handler<RoutingContext>> handlerClass = annotation.value();
+            if (handlerClass == Handle.NoHandler.class) {
+                handlerClass = null;
+            }
+            String handlerName = annotation.name();
+            if ("".equals(handlerName)) {
+                handlerName = null;
+            }
+            Handler<RoutingContext> handler = routeHandlerFactory.createHandler(handlerClass, handlerName);
+
             if (annotation.blocking()) {
                 handler = new BlockingHandlerDecorator(handler, annotation.ordered());
             }
@@ -37,19 +52,19 @@ public class HandleParser implements RouteParser {
 
         HandleFailure[] handleFailureAnnotations = element.getAnnotationsByType(HandleFailure.class);
         for (HandleFailure annotation : handleFailureAnnotations) {
-            Class<? extends Handler<RoutingContext>> handlerClass = ((HandleFailure) annotation).value();
-            Handler<RoutingContext> handler = createInstance(handlerClass);
+            Class<? extends Handler<RoutingContext>> handlerClass = annotation.value();
+            if (handlerClass == Handle.NoHandler.class) {
+                handlerClass = null;
+            }
+            String handlerName = annotation.name();
+            if ("".equals(handlerName)) {
+                handlerName = null;
+            }
+            Handler<RoutingContext> handler = routeHandlerFactory.createHandler(handlerClass, handlerName);
             routeDefinition.getFailureHandlers().add(handler);
         }
     }
 
-    private <T> T createInstance(Class<? extends T> clazz) {
-        try {
-            return clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Public constructor without parameter required", e);
-        }
-    }
 
     @Override
     public void merge(RouteDefinition parent, RouteDefinition child, RouteDefinition result, MountOptions options) {
