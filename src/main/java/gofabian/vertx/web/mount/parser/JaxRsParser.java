@@ -4,8 +4,6 @@ import gofabian.vertx.web.mount.MountOptions;
 import gofabian.vertx.web.mount.definition.ParamCategory;
 import gofabian.vertx.web.mount.definition.ParamDefinition;
 import gofabian.vertx.web.mount.definition.RouteDefinition;
-import gofabian.vertx.web.mount.parser.ParseHelper;
-import gofabian.vertx.web.mount.parser.RouteParser;
 import io.vertx.core.http.HttpMethod;
 
 import javax.ws.rs.*;
@@ -16,7 +14,7 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JaxrsParser implements RouteParser {
+public class JaxRsParser implements RouteParser {
 
     @Override
     public void visitClass(Class<?> clazz, RouteDefinition routeDefinition, MountOptions options) {
@@ -97,21 +95,25 @@ public class JaxrsParser implements RouteParser {
         }
 
         ParamCategory category = paramDefinition.getCategory();
-        if (category == ParamCategory.BODY || category == ParamCategory.CONTEXT) {
-            paramDefinition.setMandatory(true);
-            paramDefinition.setDefaultValue(null);
-        }
-
-        if (category == ParamCategory.QUERY || category == ParamCategory.HEADER || category == ParamCategory.FORM) {
-            // convert default value string to list
-            List<String> values = new ArrayList<>();
-            if (paramDefinition.getDefaultValue() != null) {
-                String rawValues = (String) paramDefinition.getDefaultValue();
-                if (!rawValues.trim().equals("")) {
-                    ParseHelper.splitByComma(rawValues, values);
+        switch (category) {
+            case BODY:
+            case CONTEXT:
+                paramDefinition.setMandatory(true);
+                paramDefinition.setDefaultValue(null);
+                break;
+            case QUERY:
+            case HEADER:
+            case FORM:
+                // convert default value string to list
+                List<String> values = new ArrayList<>();
+                if (paramDefinition.getDefaultValue() != null) {
+                    String rawValues = (String) paramDefinition.getDefaultValue();
+                    if (!rawValues.trim().equals("")) {
+                        ParseHelper.splitByComma(rawValues, values);
+                    }
                 }
-            }
-            paramDefinition.setDefaultValue(values);
+                paramDefinition.setDefaultValue(values);
+                break;
         }
     }
 

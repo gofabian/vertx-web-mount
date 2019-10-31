@@ -8,7 +8,7 @@ import gofabian.vertx.web.mount.parser.*;
 import gofabian.vertx.web.mount.request.*;
 import gofabian.vertx.web.mount.response.*;
 import gofabian.vertx.web.mount.security.SecurityParser;
-import gofabian.vertx.web.mount.validation.ValidatingRouteInvoker;
+import gofabian.vertx.web.mount.invoker.ValidatingRouteInvoker;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Route;
@@ -64,10 +64,11 @@ public class RouterBuilder {
         ));
         routeParsers = new ClassAccessList<>(Arrays.asList(
                 new ReturnTypeParser(),
-                new JaxrsParser(),
+                new JaxRsParser(),
                 new SecurityParser(),
                 new HandleParser(),
-                new BlockingParser()
+                new BlockingParser(),
+                new OrderParser()
         ));
         routeHandlers = new ClassAccessList<>(Arrays.asList(
                 BodyHandler.create(),

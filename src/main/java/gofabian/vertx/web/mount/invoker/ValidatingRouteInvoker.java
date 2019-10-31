@@ -1,6 +1,5 @@
-package gofabian.vertx.web.mount.validation;
+package gofabian.vertx.web.mount.invoker;
 
-import gofabian.vertx.web.mount.invoker.RouteInvoker;
 import io.vertx.core.Future;
 
 import javax.validation.ConstraintViolation;

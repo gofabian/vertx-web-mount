@@ -106,6 +106,7 @@ public class RouteDefinitionFactoryImplTest {
 
     @Test
     public void parseMethod() throws NoSuchMethodException {
+        @SuppressWarnings("unused")
         class Api {
             public void route(String p1, long p2) {
             }
@@ -131,6 +132,7 @@ public class RouteDefinitionFactoryImplTest {
 
     @Test
     public void createRouteDefinitions() {
+        @SuppressWarnings("unused")
         class Api {
             public void route(Object body) {
             }

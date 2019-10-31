@@ -1,4 +1,4 @@
-package gofabian.vertx.web.mount.validation;
+package gofabian.vertx.web.mount;
 
 import io.vertx.core.Handler;
 import io.vertx.ext.web.RoutingContext;
