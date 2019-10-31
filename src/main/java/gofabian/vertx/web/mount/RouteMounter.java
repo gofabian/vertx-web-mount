@@ -47,7 +47,10 @@ public class RouteMounter {
         if (routeDefinition.getOrder() != null) {
             route.order(routeDefinition.getOrder());
         }
-        
+        if (routeDefinition.isDisabled()) {
+            route.disable();
+        }
+
         // set acceptable content-type fallback
         if (!routeDefinition.getProduces().isEmpty()) {
             String fallbackContentType = routeDefinition.getProduces().get(0);

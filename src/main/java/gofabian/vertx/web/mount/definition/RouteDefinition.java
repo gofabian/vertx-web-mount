@@ -21,6 +21,7 @@ public class RouteDefinition {
     private List<Handler<RoutingContext>> failureHandlers = new ArrayList<>();
     private BlockingType blockingType;
     private Integer order;
+    private boolean disabled;
 
     private final Map<String, Object> attributes = new HashMap<>();
 
@@ -134,6 +135,14 @@ public class RouteDefinition {
         this.order = order;
     }
 
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+
     public Map<String, Object> getAttributes() {
         return attributes;
     }
@@ -162,6 +171,7 @@ public class RouteDefinition {
                 ", failureHandlers=" + failureHandlers +
                 ", blockingType=" + blockingType +
                 ", order=" + order +
+                ", disabled=" + disabled +
                 ", attributes=" + attributes +
                 '}';
     }
